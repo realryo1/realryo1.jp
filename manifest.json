@@ -1,0 +1,16 @@
+{
+  "name": "realryo1",
+  "icons": [
+    {
+      "src": "assets/img/icon256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "description": "未桜のホームページです",
+  "start_url": "http://realryo1.ml/",
+  "theme_color": "#009c9e",
+  "short_name": "Mio",
+  "display": "standalone",
+  "background_color": "#91d0cd"
+}
