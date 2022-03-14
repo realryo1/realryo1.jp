@@ -18,7 +18,7 @@ startButton.onclick = () => {
     if (0 < randomNum && randomNum <= 3) {
         paragraph.innerText = config[0].toLocaleString() + '円';
         paragraph.classList.add('ssr');
-        img.src = 'mikuzi/img/ssr.png';
+        img.src = './mikuzi/img/ssr.png';
     } else if (3 < randomNum && randomNum <= 20) {
         paragraph.innerText = config[1].toLocaleString() + '円';
         paragraph.classList.add('sr');
@@ -52,6 +52,6 @@ startButton.onclick = () => {
         setTimeout(() => {
             resultDivided.innerText = "";
             startButton.classList.remove("hidden");
-        }, 3000);
+        }, 3);
     }
 };
