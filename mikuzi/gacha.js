@@ -52,6 +52,6 @@ startButton.onclick = () => {
         setTimeout(() => {
             resultDivided.innerText = "";
             startButton.classList.remove("hidden");
-        }, 3);
+        }, 2000);
     }
 };
