@@ -44,8 +44,11 @@ body {
   color: #815a2b;
 }
 
+.tyuki {
+  margin-bottom: 1rem;
+}
+
 .trigger {
   width: 20%;
-  height: auto;
-  min-width: 5rem;
+  min-width: 10rem;
 }
