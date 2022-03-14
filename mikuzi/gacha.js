@@ -50,7 +50,7 @@ startButton.onclick = () => {
         resultDivided.appendChild(header);
         resultDivided.appendChild(paragraph);
         setTimeout(() => {
-            resultDivided.innerText = "";
+            resultDivided.innerText = "あああ";
             startButton.classList.remove("hidden");
         }, 2000);
     }
