@@ -2,7 +2,7 @@
 
 body {
   text-align: center;
-  background-color: #f3f3f3;
+  background-color: #91d0cd;
 }
 .box {
   position: relative;
@@ -45,7 +45,7 @@ body {
 }
 
 .tyuki {
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .trigger {
