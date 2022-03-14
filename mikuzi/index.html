@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+    <title>お年玉ガチャ</title>
+</head>
+
+<body>
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <h1>お年玉ガチャ</h1>
+    <p>ボタンを押してお年玉をもらおう！</p>
+    <table class="table table-striped">
+        <thead>
+            <th>レアリティ</th>
+            <th>金額</th>
+            <th>排出率</th>
+        </thead>
+        <tbody>
+            <tr>
+                <th>SSR</th>
+                <td>100,000円</td>
+                <td>3%</td>
+            </tr>
+            <tr>
+                <th>SR</th>
+                <td>10,000円</td>
+                <td>17%</td>
+            </tr>
+            <tr>
+                <th>R</th>
+                <td>5,000円</td>
+                <td>30%</td>
+            </tr>
+            <tr>
+                <th>C</th>
+                <td>500円</td>
+                <td>50%</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="box">
+        <img class="box_imageLeft" src="./img/side.png">
+        <img class="box_imageRight" src="./img/side.png">
+        <img id="start-button" class="trigger" src="./img/wait.png">
+        <div id="result-area"></div>
+    </div>
+    <script src="./gacha.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+.sumaho-waku .sumaho-moji, .sumaho-waku:after, .sumaho-waku:before {
+    max-width: 400px;/*スマホ幅の最大値*/
+    background-color: #111;/*スマホの色*/
+    color: #666;/*◎ボタンの色*/
+    display: block;
+    margin:0 auto;
+}
+.sumaho-waku .sumaho-moji {
+    background-color: #fff;/*スマホ画面の背景色*/
+    border-left: 5px #111 solid;/*スマホの色*/
+    border-right: 5px #111 solid;/*スマホの色*/
+    height: 616px;/*スマホ画面の高さ*/
+    font-size: 14px;/*画面内のフォントサイズ*/
+    width: 100%;
+    padding: 5px;
+    overflow: auto;
+    box-sizing: border-box;
+}
+.sumaho-waku:before, .sumaho-waku:after {
+    display: block;
+    text-align: center;
+    font-family: 'MS PGothic', sans-serif;
+    line-height: 1em;
+}
+.sumaho-waku:before {
+    content: '…';
+    font-size: 30px;
+    border-radius: 30px 30px 0 0;
+    height: 30px;
+}
+.sumaho-waku:after {
+    font-size: 50px;
+    content: "◎";
+    border-radius: 0px 0px 30px 30px;
+    height: 60px;
+}

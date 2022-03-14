@@ -1,0 +1,50 @@
+@import url("./animation.css");
+
+body {
+  text-align: center;
+  background-color: #f3f3f3;
+}
+.box {
+  position: relative;
+}
+
+.box .box_imageLeft {
+  width: 20%;
+  position: absolute;
+  left: 0;
+}
+
+.box .box_imageRight {
+  width: 20%;
+  position: absolute;
+  right: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.ssr {
+  font-size: 45px;
+  color: red;
+}
+
+.sr {
+  font-size: 45px;
+  color: #caac03;
+}
+
+.r {
+  font-size: 45px;
+  color: #868585;
+}
+
+.c {
+  font-size: 45px;
+  color: #815a2b;
+}
+
+.trigger {
+  width: 20%;
+  height: 20%;
+}
