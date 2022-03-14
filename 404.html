@@ -3,14 +3,20 @@
 
 <head>
 
+  <link rel="manifest" href="./manifest.json">
+  <script>
+    // service workerが有効なら、service-worker.js を登録します
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(function () { console.log('Service Worker Registered'); });
+    }
+  </script>
+  <link rel="apple-touch-icon" href="assets/img/icon256.png">
+
   <title>ページが見つかりません</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="shortcut icon" href="https://realryo1.ml/assets/img/favicon.ico">
   <link rel="stylesheet" href="https://realryo1.ml/assets/css/style.css">
-
-  <link rel="manifest" href="https://realryo1.ml/manifest.json">
-  <link rel="apple-touch-icon" href="https://realryo1.ml/assets/img/icon256.png">
 
   <script type="text/ecmascript">
     function HeaderClick() {
