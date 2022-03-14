@@ -46,5 +46,6 @@ body {
 
 .trigger {
   width: 20%;
-  height: 20%;
+  height: auto;
+  min-width: 5rem;
 }
