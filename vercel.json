@@ -1,0 +1,16 @@
+{
+    "redirects": [
+      {
+        "source": "/index.html",
+        "destination": "/"
+      },
+      {
+        "source": "/mikuzi/",
+        "destination": "/mikuzi"
+      },
+      {
+        "source": "/mikuzi/index.html",
+        "destination": "/mikuzi"
+      }
+    ]
+  }
