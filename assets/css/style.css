@@ -124,9 +124,13 @@ body {
   margin-left: auto;
 }
 
+.tyki {
+  padding: 1rem;
+}
+
 .frame {
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 0.4rem;
+  margin-bottom: 1rem;
   border: 2px solid var(--main-Accentcolor);
   border-radius: 39px;
 }
@@ -140,7 +144,7 @@ body {
   margin-left: auto;
 }
 
-.reiwamiku {
+.image {
   width: 90%;
   max-width: 539px;
   margin-right: auto;
@@ -155,6 +159,10 @@ body {
 .red {
   color: red;
   font-weight: bold;
+}
+
+.white {
+  color: #ffffff;
 }
 
 .btn-flat-border {
