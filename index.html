@@ -6,8 +6,8 @@
   <title>未桜のホーム</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="shortcut icon" href="assets/img/favicon.ico">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="shortcut icon" href="./assets/img/favicon.ico">
+  <link rel="stylesheet" href="./assets/css/style.css">
 
   <link rel="manifest" href="./manifest.json">
   <script>
@@ -16,13 +16,13 @@
       navigator.serviceWorker.register('./service-worker.js').then(function () { console.log('Service Worker Registered'); });
     }
   </script>
-  <link rel="apple-touch-icon" href="assets/img/icon256.png">
+  <link rel="apple-touch-icon" href="./assets/img/icon256.png">
 
   <meta property="og:title" content="未桜のホーム">
   <meta property="og:description" content="未桜のホームページです">
   <meta property="og:url" content="https://realryo1.ml/">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/img/ogp.jpg">
+  <meta property="og:image" content="./assets/img/ogp.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
@@ -49,12 +49,14 @@
   <div id="all">
 
     <div id="title">
-      <a href="https://realryo1.ml/"><img src="assets/img/realryo1rogo.png" class="rogo" alt="realryo1rogo"></a>
+      <a href="./"><img src="./assets/img/realryo1rogo.png" class="logo" alt="realryo1rogo"></a>
 
       <div id="SNS">
-        <a href="https://twitter.com/realryo1"><img src="assets/img/Twitter.png" class="SNSr" alt="Twitter"></a>
-        <a href=""><img src="assets/img/Instagram.png" class="SNSr" alt="Instagram"></a>
-        <a href=""><img src="assets/img/Discord.png" class="SNSr" alt="Discord"></a>
+        <a href="https://twitter.com/realryo1"><img src="./assets/img/Twitter.png" class="SNSr" alt="Twitter"></a>
+        <a href="https://github.com/realryo1/realryo1.ml"><img src="./assets/img/GitHub.png" class="SNSr"
+            alt="GitHub"></a>
+        <a href="https://lister.tokyo/emoji/unicode_emoji.php?emoji=%F0%9F%92%A0"><img src="./assets/img/icon100.png"
+            class="SNSr" alt="元ネタ"></a>
       </div>
 
     </div>
@@ -63,32 +65,28 @@
       <div class="hr"></div>
       <div id="ContentsHeader" onclick="HeaderClick();">メニュー
         <div id="ContentsPanel" class="Expand">
-          <a href="Download.html" class="btn-border-bottom">未桜のいろいろ置き場</a>
-          <br><br>
-          <a href="./mikuzi" class="btn-border-bottom">おみくじ</a>
+          <a href="./Download.html" class="btn-border-bottom">未桜ぎゃらりー</a>
+          <br />
+          <a href="./mikuzi/index.html" class="btn-border-bottom omimenu">おみくじ</a>
         </div>
       </div>
       <div class="hr"></div>
     </div>
 
     <div id="text">
-      <br>
-      <h2>未桜のホーム</h2>
-      <br>
-      適当記述をまともな記述に直したりしました〜
-      <br><br>
-      画像等のダウンロードはこちらから
-      <br><br>
-      <h3><a href="Download.html" class="btn-flat-border">未桜のいろいろ置き場</a></h3>
-      <br>
+
+      <h2 class="rem1B">未桜のホーム</h2>
+
+      <p>まともな記述をマシな記述にに直しました！</p>
+      <p>Webサイトや画像等の閲覧・ダウンロードはこちらから</p>
+
+      <h3 class="rem1B"><a href="./Download.html" class="btn-flat-border">未桜ぎゃらりー</a></h3>
+
     </div>
 
-    <div id="cr">
-      <div class="hr"></div>
-      <br><br>
-      © 2021 realryo1
-      <br><br><br>
-    </div>
+    <div class="hr"></div>
+
+    <div id="cr">© 2022 realryo1</div>
 
   </div>
 
