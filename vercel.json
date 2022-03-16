@@ -11,6 +11,10 @@
       {
         "source": "/mikuzi/index.html",
         "destination": "/mikuzi"
+      },
+      {
+        "source": "/download.html",
+        "destination": "/Download.html"
       }
     ]
   }
