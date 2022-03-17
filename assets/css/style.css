@@ -117,18 +117,27 @@ body {
 }
 
 #text {
-  width: 90%;
-  max-width: 600px;
-  font-size: 15px;
   margin-right: auto;
   margin-left: auto;
 }
 
+p {
+  margin-right: auto;
+  margin-left: auto;
+  width: 95%;
+}
+
 .tyki {
-  padding: 1rem;
+  max-width: 30rem;
+  padding: 1rem 0;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .frame {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 85%;
   padding: 0.4rem;
   margin-bottom: 1rem;
   border: 2px solid var(--main-Accentcolor);
@@ -145,7 +154,7 @@ body {
 }
 
 .image {
-  width: 90%;
+  width: 85%;
   max-width: 539px;
   margin-right: auto;
   margin-left: auto;
