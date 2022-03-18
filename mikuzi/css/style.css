@@ -1,9 +1,14 @@
-@import url("./mikuzi/animation.css");
+@import url("./animation.css");
 
 body {
   text-align: center;
   background-color: #bee0df;
 }
+
+h1 {
+  margin-top: 2rem;
+}
+
 .box {
   position: relative;
 }
@@ -45,7 +50,7 @@ body {
 }
 
 .tyuki {
-  margin-top: 1rem;
+  margin: 1rem 0;
 }
 
 .trigger {

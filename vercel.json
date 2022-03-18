@@ -5,12 +5,8 @@
         "destination": "/"
       },
       {
-        "source": "/mikuzi/",
-        "destination": "/mikuzi"
-      },
-      {
         "source": "/mikuzi/index.html",
-        "destination": "/mikuzi"
+        "destination": "/mikuzi/"
       },
       {
         "source": "/download.html",
