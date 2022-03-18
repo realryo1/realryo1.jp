@@ -1,4 +1,5 @@
-## realryo1.ml のリポジトリ 
+## realryo1.ml のリポジトリ
+
 プルリクとかは気軽にどうぞー
 
 ## リンク
@@ -8,10 +9,12 @@
 ## 使ってるもの
 
 - freenom
-- bootstrap（?）
 - vercel
+- bootstrap（一部）
 - VSCode
 
-### VSCodeの拡張機能
+### VSCode の拡張機能
+
+- Live Server
 - Prettier
 - Stylelint
