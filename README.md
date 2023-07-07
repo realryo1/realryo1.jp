@@ -4,7 +4,7 @@
 
 ## リンク
 
-[https://realryo1.github.io/realryo1.jp/](https://realryo1.github.io/realryo1.jp/)
+[https://realryo1.jp/](https://realryo1.jp/)
 
 ## 使ってるもの
 
