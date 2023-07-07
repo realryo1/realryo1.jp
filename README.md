@@ -1,10 +1,10 @@
-## realryo1.ml のリポジトリ
+## realryo1.jp のリポジトリ
 
 プルリクとかは気軽にどうぞー
 
 ## リンク
 
-[https://realryo1.github.io/realryo1.ml/](https://realryo1.github.io/realryo1.ml/)
+[https://realryo1.github.io/realryo1.jp/](https://realryo1.github.io/realryo1.jp/)
 
 ## 使ってるもの
 
