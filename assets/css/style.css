@@ -25,30 +25,6 @@ body {
   margin-left: auto;
 }
 
-/*light*/
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --main-Accentcolor: #009c9e;
-    --main-framecolor: #91d0cd;
-    --main-backcolor: #ffffff;
-    --main-back2color: #d1feff;
-    --main-textcolor: #000000;
-  }
-}
-
-/*dark*/
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --main-Accentcolor: #91d0cd;
-    --main-framecolor: #009c9e;
-    --main-backcolor: #074d59;
-    --main-back2color: #00696b;
-    --main-textcolor: #ffffff;
-  }
-}
-
 /*SmartPhone*/
 
 @media (max-width: 639px) {
@@ -256,4 +232,28 @@ p {
 
 #cr {
   padding: 2.5rem;
+}
+
+/*light*/
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --main-Accentcolor: #009c9e;
+    --main-framecolor: #91d0cd;
+    --main-backcolor: #ffffff;
+    --main-back2color: #d1feff;
+    --main-textcolor: #000000;
+  }
+}
+
+/*dark*/
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --main-Accentcolor: #91d0cd;
+    --main-framecolor: #009c9e;
+    --main-backcolor: #074d59;
+    --main-back2color: #00696b;
+    --main-textcolor: #ffffff;
+  }
 }
