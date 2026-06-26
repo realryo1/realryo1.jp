@@ -1,0 +1,6 @@
+[preload  storage="./data/bgimage/2defd3e7.jpg"  ]
+[preload  storage="./data/fgimage/chara/1/んま～.png"  ]
+[preload  storage="./data/bgimage/PXL_20250211_023717236.jpg"  ]
+[preload  storage="./data/bgimage/mazisupa.jpg"  ]
+[preload  storage="./data/bgimage/mazisupa_mikudarake.jpg"  ]
+[return]

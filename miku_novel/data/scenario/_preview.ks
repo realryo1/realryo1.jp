@@ -1,0 +1,21 @@
+[_tb_system_call storage=system/_preview.ks ]
+
+[mask time=10]
+[bg  time="10"  method="crossfade"  storage="PXL_20250209_124425193.jpg"  ]
+[tb_show_message_window] 
+[chara_mod  name="初音ミク"  time="10"  cross="false"  storage="chara/1/tere_-_コピー.png"  ]
+[mask_off time=10]
+[bg  time="1000"  method="crossfade"  storage="title.jpg"  ]
+[chara_show  name="初音ミク"  time="1000"  wait="true"  storage="chara/1/やった～_-_コピー.png"  width="736"  height="1185"  left="283"  top="-58"  reflect="false"  ]
+[tb_start_text mode=1 ]
+初音ミクの立ち絵：浅井麻[r]https://asavo.fanbox.cc/posts/3660618[p]
+[_tb_end_text]
+
+[chara_mod  name="初音ミク"  time="600"  cross="true"  storage="chara/1/kiran.png"  ]
+[tb_start_text mode=1 ]
+この作品はhttps://piapro.jp/license/pcl/summaryに基づいてクリプトン・フューチャー・メディア株式会社のキャラクター「初音ミク」を描いたものです。[p]
+[_tb_end_text]
+
+[chara_hide  name="初音ミク"  time="1000"  wait="true"  pos_mode="true"  ]
+[mask  time="1000"  effect="fadeIn"  color="0x000000"  ]
+[jump  storage="title_screen.ks"  target=""  ]
