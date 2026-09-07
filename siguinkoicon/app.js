@@ -2,6 +2,7 @@
   const SIZE = 512;
   const IMG_DIR = "./img/";
   const LIST_URL = `${IMG_DIR}imagelist.json`;
+  const DEFAULT_BASE_FILE = "原始.png";
 
   /** @type {{ file: string, group: string, part: string|null, label: string }[]} */
   let assets = [];
@@ -10,6 +11,16 @@
   /** @type {{ id: string, file: string, group: string, part: string|null, label: string }[]} */
   let layers = [];
   let idSeq = 0;
+
+  function makeLayer(asset) {
+    return {
+      id: `layer-${++idSeq}`,
+      file: asset.file,
+      group: asset.group,
+      part: asset.part,
+      label: asset.label,
+    };
+  }
 
   const materialsEl = document.getElementById("materials");
   const materialsStatusEl = document.getElementById("materials-status");
@@ -94,7 +105,8 @@
 
   async function renderPreview() {
     ctx.clearRect(0, 0, SIZE, SIZE);
-    for (const layer of layers) {
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const layer = layers[i];
       const img = loadImage(layer.file);
       try {
         await img._ready;
@@ -107,13 +119,7 @@
   }
 
   function addAsset(asset) {
-    layers.push({
-      id: `layer-${++idSeq}`,
-      file: asset.file,
-      group: asset.group,
-      part: asset.part,
-      label: asset.label,
-    });
+    layers.unshift(makeLayer(asset));
     loadImage(asset.file);
     renderLayers();
     renderPreview();
@@ -121,7 +127,13 @@
 
   function addGroup(groupName) {
     const items = assets.filter((a) => a.group === groupName);
-    for (const item of items) addAsset(item);
+    const incoming = items.map((item) => {
+      loadImage(item.file);
+      return makeLayer(item);
+    });
+    layers = incoming.concat(layers);
+    renderLayers();
+    renderPreview();
   }
 
   function moveLayer(id, dir) {
@@ -147,54 +159,64 @@
     const grouped = groupAssets(assets.map((a) => a.file));
 
     for (const [groupName, items] of grouped) {
-      const groupEl = document.createElement("div");
-      groupEl.className = "group";
-      groupEl.setAttribute("role", "listitem");
+      const groupLi = document.createElement("li");
+      groupLi.className = "mat-group";
 
-      const head = document.createElement("div");
-      head.className = "group-head";
+      const groupRow = document.createElement("button");
+      groupRow.type = "button";
+      groupRow.className = "mat-row mat-row-group";
+      groupRow.setAttribute(
+        "aria-label",
+        `${groupName}グループをすべて追加`
+      );
 
-      const name = document.createElement("div");
-      name.className = "group-name";
-      name.textContent = groupName;
+      const groupThumb = document.createElement("img");
+      groupThumb.className = "mat-thumb";
+      groupThumb.alt = "";
+      groupThumb.loading = "lazy";
+      groupThumb.src =
+        IMG_DIR + encodeURIComponent(items[0].file).replace(/%2F/gi, "/");
 
-      const addAll = document.createElement("button");
-      addAll.type = "button";
-      addAll.className = "btn-group-add";
-      addAll.textContent = "グループ追加";
-      addAll.addEventListener("click", () => addGroup(groupName));
+      const groupLabel = document.createElement("span");
+      groupLabel.className = "mat-label";
+      groupLabel.textContent = groupName;
 
-      head.append(name, addAll);
+      const groupMeta = document.createElement("span");
+      groupMeta.className = "mat-meta";
+      groupMeta.textContent = `${items.length}点`;
+
+      groupRow.append(groupThumb, groupLabel, groupMeta);
+      groupRow.addEventListener("click", () => addGroup(groupName));
 
       const partList = document.createElement("ul");
-      partList.className = "part-list";
+      partList.className = "mat-children";
 
       for (const item of items) {
-        const li = document.createElement("li");
-        li.className = "part-card";
+        const partLi = document.createElement("li");
+        const partRow = document.createElement("button");
+        partRow.type = "button";
+        partRow.className = "mat-row mat-row-part";
+        partRow.setAttribute("aria-label", `${item.label}を追加`);
 
         const thumb = document.createElement("img");
-        thumb.className = "part-thumb";
-        thumb.alt = item.label;
+        thumb.className = "mat-thumb";
+        thumb.alt = "";
         thumb.loading = "lazy";
-        thumb.src = IMG_DIR + encodeURIComponent(item.file).replace(/%2F/gi, "/");
+        thumb.src =
+          IMG_DIR + encodeURIComponent(item.file).replace(/%2F/gi, "/");
 
-        const label = document.createElement("div");
-        label.className = "part-label";
+        const label = document.createElement("span");
+        label.className = "mat-label";
         label.textContent = item.part ?? item.group;
 
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn-part";
-        btn.textContent = "追加";
-        btn.addEventListener("click", () => addAsset(item));
-
-        li.append(thumb, label, btn);
-        partList.append(li);
+        partRow.append(thumb, label);
+        partRow.addEventListener("click", () => addAsset(item));
+        partLi.append(partRow);
+        partList.append(partLi);
       }
 
-      groupEl.append(head, partList);
-      materialsEl.append(groupEl);
+      groupLi.append(groupRow, partList);
+      materialsEl.append(groupLi);
     }
   }
 
@@ -228,7 +250,7 @@
       up.type = "button";
       up.className = "layer-btn";
       up.textContent = "▲";
-      up.title = "上へ（背面側）";
+      up.title = "上へ（前面側）";
       up.disabled = index === 0;
       up.addEventListener("click", () => moveLayer(layer.id, -1));
 
@@ -236,7 +258,7 @@
       down.type = "button";
       down.className = "layer-btn";
       down.textContent = "▼";
-      down.title = "下へ（前面側）";
+      down.title = "下へ（背面側）";
       down.disabled = index === layers.length - 1;
       down.addEventListener("click", () => moveLayer(layer.id, 1));
 
@@ -300,13 +322,17 @@
     }
 
     assets = raw
-      .filter((f) => typeof f === "string" && /\.png$/i.test(f))
+      .filter(
+        (f) =>
+          typeof f === "string" &&
+          /\.png$/i.test(f) &&
+          f !== DEFAULT_BASE_FILE
+      )
       .map(parseFileName);
 
-    if (assets.length === 0) {
-      setStatus("素材がありません。img に PNG を追加してデプロイしてください。", "error");
-      return;
-    }
+    const base = parseFileName(DEFAULT_BASE_FILE);
+    layers = [makeLayer(base)];
+    loadImage(base.file);
 
     setStatus("");
     renderMaterials();
