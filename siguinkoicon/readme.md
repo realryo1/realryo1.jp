@@ -2,6 +2,8 @@
 
 静的なアイコン合成ツール。素材 PNG をレイヤーとして重ね、512×512 の PNG を出す。
 
+リポジトリ: https://github.com/realryo1/realryo1.jp
+
 **PNG 本体は読まない。** `.cursorignore` で `siguinkoicon/img/*.png` を除外している。ファイル名と `imagelist.json` だけで判断する。ピクセル内容・見た目・権利判断は対象外。
 
 ## 構成
