@@ -1,0 +1,74 @@
+name: Deploy Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate siguinkoicon imagelist.json
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          img_dir = Path("siguinkoicon/img")
+          img_dir.mkdir(parents=True, exist_ok=True)
+          files = sorted(
+              p.name for p in img_dir.iterdir()
+              if p.is_file() and p.suffix.lower() == ".png"
+          )
+          out = img_dir / "imagelist.json"
+          out.write_text(
+              json.dumps(files, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(f"wrote {out} ({len(files)} files)")
+          PY
+
+      - name: Commit imagelist if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add siguinkoicon/img/imagelist.json
+          if git diff --staged --quiet; then
+            echo "imagelist.json unchanged"
+          else
+            git commit -m "chore: update siguinkoicon imagelist"
+            git push
+          fi
+
+      - name: Prepare site bundle
+        run: |
+          mkdir _pages
+          tar --exclude='./.git' --exclude='./_pages' -cf - . | tar -C _pages -xf -
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

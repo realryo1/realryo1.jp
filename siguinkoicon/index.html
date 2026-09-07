@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>シグリンコ アイコンジェネレータ</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <h1>シグリンコ アイコンジェネレータ</h1>
+      <p class="lede">素材を選んでレイヤーを重ね、アイコンを作ります。</p>
+    </header>
+
+    <div class="workspace">
+      <section class="panel" aria-labelledby="materials-heading">
+        <div class="panel-head">
+          <h2 id="materials-heading">素材</h2>
+          <p class="panel-hint">タップで使用エリアへ追加</p>
+        </div>
+        <div id="materials" class="materials" role="list"></div>
+        <p id="materials-status" class="status" hidden></p>
+      </section>
+
+      <section class="panel" aria-labelledby="layers-heading">
+        <div class="panel-head">
+          <h2 id="layers-heading">使用（レイヤー）</h2>
+          <p class="panel-hint">下ほど前面。▲▼で入れ替え</p>
+        </div>
+        <ul id="layers" class="layers"></ul>
+        <p id="layers-empty" class="empty">まだ何もありません</p>
+      </section>
+    </div>
+
+    <section class="preview-block" aria-labelledby="preview-heading">
+      <h2 id="preview-heading">プレビュー</h2>
+      <div class="preview-frame">
+        <canvas id="preview" width="512" height="512" aria-label="アイコンプレビュー"></canvas>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="button" id="btn-finish" class="btn-finish">完成！</button>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-top">
+        <h2 id="modal-title">完成アイコン</h2>
+        <button type="button" class="modal-close" data-close aria-label="閉じる">×</button>
+      </div>
+      <p class="modal-save-hint">画像を長押し（または右クリック）して保存できます</p>
+      <img id="result-image" class="result-image" alt="完成したアイコン">
+      <ul class="notes">
+        <li><span class="ok">〇</span> @sigurin_now に感謝を伝える</li>
+        <li><span class="ok">〇</span> アイコンにする</li>
+        <li><span class="ng">✖</span> R18</li>
+        <li><span class="ng">✖</span> 権利元に迷惑をかける</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
