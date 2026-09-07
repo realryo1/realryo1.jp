@@ -2,8 +2,8 @@
   const SIZE = 512;
   const IMG_DIR = "./img/";
   const LIST_URL = `${IMG_DIR}imagelist.json`;
-  const DEFAULT_BASE_FILE = "原始.png";
   const BG_LAYER_ID = "layer-background";
+  const FIXED_PREFIX = "固定";
 
   /** @type {{ file: string, group: string, part: string|null, label: string }[]} */
   let assets = [];
@@ -33,7 +33,20 @@
       group: asset.group,
       part: asset.part,
       label: asset.label,
+      locked: Boolean(asset.locked),
     };
+  }
+
+  function fileBaseName(file) {
+    return String(file).replace(/^.*[\\/]/, "");
+  }
+
+  function isFixedFile(file) {
+    return fileBaseName(file).startsWith(FIXED_PREFIX);
+  }
+
+  function isFixedLayer(layer) {
+    return Boolean(layer?.locked) || isFixedFile(layer?.file);
   }
 
   function makeBackgroundLayer() {
@@ -65,6 +78,8 @@
 
   const materialsEl = document.getElementById("materials");
   const materialsStatusEl = document.getElementById("materials-status");
+  const materialsCountEl = document.getElementById("materials-count");
+  const layersCountEl = document.getElementById("layers-count");
   const materialsToggle = document.getElementById("materials-toggle");
   const materialsPanel =
     document.getElementById("materials-panel") ||
@@ -267,14 +282,18 @@
   });
 
   function parseFileName(file) {
-    const base = file.replace(/\.png$/i, "");
+    const locked = isFixedFile(file);
+    let base = fileBaseName(file).replace(/\.png$/i, "");
+    if (locked) {
+      base = base.slice(FIXED_PREFIX.length).replace(/^_/, "");
+    }
     const idx = base.indexOf("_");
     if (idx === -1) {
-      return { file, group: base, part: null, label: base };
+      return { file, group: base, part: null, label: base, locked };
     }
     const group = base.slice(0, idx);
     const part = base.slice(idx + 1);
-    return { file, group, part, label: part || group };
+    return { file, group, part, label: part || group, locked };
   }
 
   function groupAssets(list) {
@@ -363,7 +382,21 @@
     btnFinish.disabled = layers.length === 0;
   }
 
+  function isAssetAdded(asset) {
+    return layers.some((l) => l.file === asset.file);
+  }
+
   function addAsset(asset) {
+    if (isAssetAdded(asset)) {
+      const groupItems = assets.filter((a) => a.group === asset.group);
+      const asGroup = groupItems.length === 1;
+      const ok = window.confirm(
+        asGroup
+          ? "すでにこのグループは追加されています　追加しますか？"
+          : "すでにこのパーツは追加されています　追加しますか？"
+      );
+      if (!ok) return;
+    }
     layers.unshift(makeLayer(asset));
     pinBackgroundBottom();
     loadImage(asset.file);
@@ -371,22 +404,33 @@
     renderPreview();
   }
 
-  function isGroupFullyAdded(groupName) {
-    const items = assets.filter((a) => a.group === groupName);
-    if (items.length === 0) return false;
-    return items.every((item) => layers.some((l) => l.file === item.file));
+  function countableLayerCount() {
+    return layers.filter((l) => !isBackgroundLayer(l) && !isFixedLayer(l)).length;
+  }
+
+  function updatePartCounts() {
+    if (materialsCountEl) {
+      materialsCountEl.textContent = `${assets.length}パーツ`;
+    }
+    if (layersCountEl) {
+      layersCountEl.textContent = `${countableLayerCount()}パーツ`;
+    }
   }
 
   function addGroup(groupName) {
-    if (isGroupFullyAdded(groupName)) {
+    const items = assets.filter((a) => a.group === groupName);
+    const missing = items.filter((item) => !isAssetAdded(item));
+
+    let incomingItems = missing;
+    if (missing.length === 0) {
       const ok = window.confirm(
         "すでにこのグループは追加されています　追加しますか？"
       );
       if (!ok) return;
+      incomingItems = items;
     }
 
-    const items = assets.filter((a) => a.group === groupName);
-    const incoming = items.map((item) => {
+    const incoming = incomingItems.map((item) => {
       loadImage(item.file);
       return makeLayer(item);
     });
@@ -398,7 +442,7 @@
 
   function removeLayer(id) {
     const target = layers.find((l) => l.id === id);
-    if (!target || isBackgroundLayer(target) || target.file === DEFAULT_BASE_FILE) {
+    if (!target || isBackgroundLayer(target) || isFixedLayer(target)) {
       return;
     }
     layers = layers.filter((l) => l.id !== id);
@@ -579,6 +623,31 @@
       const groupLi = document.createElement("li");
       groupLi.className = "mat-group";
 
+      if (items.length === 1) {
+        const item = items[0];
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "mat-row mat-row-group";
+        row.setAttribute("aria-label", `${item.label}を追加`);
+
+        const thumb = document.createElement("img");
+        thumb.className = "mat-thumb";
+        thumb.alt = "";
+        thumb.loading = "lazy";
+        thumb.src =
+          IMG_DIR + encodeURIComponent(item.file).replace(/%2F/gi, "/");
+
+        const label = document.createElement("span");
+        label.className = "mat-label";
+        label.textContent = item.group;
+
+        row.append(thumb, label);
+        row.addEventListener("click", () => addAsset(item));
+        groupLi.append(row);
+        materialsEl.append(groupLi);
+        continue;
+      }
+
       const groupRow = document.createElement("button");
       groupRow.type = "button";
       groupRow.className = "mat-row mat-row-group";
@@ -635,10 +704,12 @@
       groupLi.append(groupRow, partList);
       materialsEl.append(groupLi);
     }
+    updatePartCounts();
   }
 
   function renderLayers() {
     layersEl.replaceChildren();
+    updatePartCounts();
     pinBackgroundBottom();
     layersEmptyEl.hidden = layers.length > 0;
 
@@ -752,7 +823,7 @@
         startLayerDrag(ev, layer.id, li)
       );
 
-      if (layer.file !== DEFAULT_BASE_FILE) {
+      if (!isFixedLayer(layer)) {
         const sideLeft = document.createElement("div");
         sideLeft.className = "layer-side-left";
         const del = document.createElement("button");
@@ -820,18 +891,17 @@
       return;
     }
 
-    assets = raw
-      .filter(
-        (f) =>
-          typeof f === "string" &&
-          /\.png$/i.test(f) &&
-          f !== DEFAULT_BASE_FILE
-      )
-      .map(parseFileName);
+    const pngFiles = raw.filter(
+      (f) => typeof f === "string" && /\.png$/i.test(f)
+    );
 
-    const base = parseFileName(DEFAULT_BASE_FILE);
-    layers = [makeLayer(base), makeBackgroundLayer()];
-    loadImage(base.file);
+    assets = pngFiles.filter((f) => !isFixedFile(f)).map(parseFileName);
+
+    const fixedAssets = pngFiles.filter(isFixedFile).map(parseFileName);
+    layers = fixedAssets.map(makeLayer).concat([makeBackgroundLayer()]);
+    for (const asset of fixedAssets) {
+      loadImage(asset.file);
+    }
 
     setStatus("");
     renderMaterials();

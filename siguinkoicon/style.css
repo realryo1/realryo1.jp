@@ -156,17 +156,29 @@ button.panel-fold {
   -webkit-tap-highlight-color: transparent;
 }
 
-.panel-fold-title {
+.panel-fold-title,
+.panel-title-row {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.4rem;
   min-width: 0;
+}
+
+.panel-fold-title {
+  align-items: center;
 }
 
 .panel-fold h2,
 .panel-head h2 {
   margin: 0;
   font-size: 1.05rem;
+}
+
+.panel-count {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .panel-fold-icon {
