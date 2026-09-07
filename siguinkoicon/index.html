@@ -14,19 +14,28 @@
     </header>
 
     <div class="workspace">
-      <section class="panel" aria-labelledby="materials-heading">
-        <div class="panel-head">
-          <h2 id="materials-heading">素材</h2>
-          <p class="panel-hint">タップで使用エリアへ追加</p>
-        </div>
+      <section class="panel" id="materials-panel" aria-labelledby="materials-heading">
+        <button
+          type="button"
+          id="materials-toggle"
+          class="panel-head panel-fold"
+          aria-controls="materials"
+          aria-expanded="true"
+        >
+          <span class="panel-fold-title">
+            <h2 id="materials-heading">素材</h2>
+            <span class="panel-fold-icon" aria-hidden="true"></span>
+          </span>
+          <span class="panel-hint">タップで使用エリアへ追加</span>
+        </button>
         <ul id="materials" class="materials"></ul>
         <p id="materials-status" class="status" hidden></p>
       </section>
 
       <section class="panel" aria-labelledby="layers-heading">
         <div class="panel-head">
-          <h2 id="layers-heading">使用（レイヤー）</h2>
-          <p class="panel-hint">上ほど前面。▲▼で入れ替え</p>
+          <h2 id="layers-heading">使用中</h2>
+          <p class="panel-hint">上ほど前面。ドラッグで入れ替え</p>
         </div>
         <ul id="layers" class="layers"></ul>
         <p id="layers-empty" class="empty">まだ何もありません</p>

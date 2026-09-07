@@ -66,11 +66,12 @@ button {
 .workspace {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 @media (min-width: 860px) {
   .workspace {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
   }
 }
@@ -83,6 +84,7 @@ button {
   padding: 0.9rem 0.9rem 1rem;
   min-height: 280px;
   max-height: min(62vh, 560px);
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -98,61 +100,17 @@ button {
   border-bottom: 1px solid var(--line);
 }
 
-.panel-head h2 {
-  margin: 0;
-  font-size: 1.05rem;
+.panel.is-folded > .panel-head {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
-.panel-hint {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.materials,
-.layers {
-  overflow: auto;
-  flex: 1;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.materials {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.mat-group {
-  margin: 0;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.mat-children {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-  background: #faf8f3;
-}
-
-.mat-children > li + li {
-  border-top: 1px solid var(--line);
-}
-
-.mat-row {
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  align-items: center;
-  gap: 0.65rem;
+button.panel-fold {
   width: 100%;
-  margin: 0;
-  padding: 0.55rem 0.7rem;
+  box-sizing: border-box;
   border: none;
+  border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -161,9 +119,137 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+.panel-fold-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.panel-fold h2,
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.panel-fold-icon {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.panel-fold[aria-expanded="false"] .panel-fold-icon {
+  transform: rotate(-45deg) translateY(1px);
+}
+
+.panel-fold:hover .panel-fold-icon,
+.panel-fold:focus-visible .panel-fold-icon {
+  border-color: var(--ink);
+}
+
+.panel-fold:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.panel.is-folded .materials,
+.panel.is-folded #materials-status {
+  display: none;
+}
+
+.panel.is-folded .panel-hint {
+  display: none;
+}
+
+.panel.is-folded {
+  min-height: 0;
+  max-height: none;
+}
+
+.panel-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+.materials,
+.layers {
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex: 1;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.materials {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.mat-group {
+  margin: 0;
+  padding: 0;
+}
+
+.mat-group + .mat-group {
+  border-top: 1px solid var(--line);
+}
+
+.mat-parts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  background: #faf8f3;
+}
+
+.mat-parts > li {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.mat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mat-row-group {
+  font-weight: 700;
+  background: #fff;
+}
+
 .mat-row-part {
-  grid-template-columns: 36px 1fr;
-  padding-left: 1.35rem;
+  min-height: 44px;
+  padding-left: 1.75rem;
+  background: #faf8f3;
+  font-weight: 400;
 }
 
 .mat-row:hover,
@@ -176,25 +262,32 @@ button {
   background: #e5dcc8;
 }
 
-.mat-row-group .mat-label {
-  font-weight: 700;
-  font-size: 0.92rem;
+.mat-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mat-row-part .mat-label {
   font-size: 0.86rem;
+  font-weight: 400;
 }
 
 .mat-meta {
+  flex: 0 0 auto;
   font-size: 0.72rem;
+  font-weight: 400;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.mat-thumb,
-.layer-thumb {
-  width: 40px;
-  height: 40px;
+.mat-thumb {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   background:
     linear-gradient(45deg, #ece7dc 25%, transparent 25%),
@@ -203,12 +296,22 @@ button {
     linear-gradient(-45deg, transparent 75%, #ece7dc 75%);
   background-size: 12px 12px;
   background-position: 0 0, 0 6px, 6px -6px, -6px 0;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
-.mat-row-part .mat-thumb {
-  width: 36px;
-  height: 36px;
+.layer-thumb {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  pointer-events: none;
+  background:
+    linear-gradient(45deg, #ece7dc 25%, transparent 25%),
+    linear-gradient(-45deg, #ece7dc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ece7dc 75%),
+    linear-gradient(-45deg, transparent 75%, #ece7dc 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  border-radius: 8px;
 }
 
 .layer-btn,
@@ -232,24 +335,42 @@ button {
   gap: 0.45rem;
 }
 
-.layer-thumb {
-  width: 52px;
-  height: 52px;
-}
-
 .layer-item {
   display: grid;
-  grid-template-columns: 52px 1fr auto;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
   gap: 0.55rem;
   align-items: center;
-  padding: 0.45rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fff;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  position: relative;
+  will-change: transform;
+  box-sizing: border-box;
+}
+
+.layer-item.is-shifting {
+  transition: transform 0.18s ease;
+}
+
+.layer-item.is-dragging {
+  z-index: 6;
+  cursor: grabbing;
+  box-shadow: 0 12px 28px rgba(40, 32, 18, 0.18);
+  border-color: #c4b79d;
+  transition: none;
+  opacity: 0.96;
 }
 
 .layer-meta {
   min-width: 0;
+  pointer-events: none;
 }
 
 .layer-title {
@@ -267,9 +388,12 @@ button {
 
 .layer-controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .layer-btn.is-danger {
