@@ -179,8 +179,7 @@ button.panel-fold {
   pointer-events: none;
 }
 
-.materials,
-.layers {
+.materials {
   overflow-x: hidden;
   overflow-y: auto;
   flex: 1;
@@ -191,12 +190,30 @@ button.panel-fold {
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-}
-
-.materials {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: #fff;
+}
+
+.layers {
+  overflow: visible;
+  flex: none;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.panel-layers {
+  min-height: 0;
+  max-height: none;
+  height: auto;
 }
 
 .mat-group {
@@ -329,15 +346,9 @@ button.panel-fold {
   background: #e2d9c6;
 }
 
-.layers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
 .layer-item {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
+  grid-template-columns: auto 52px minmax(0, 1fr) auto;
   gap: 0.55rem;
   align-items: center;
   width: 100%;
@@ -347,8 +358,8 @@ button.panel-fold {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fff;
-  cursor: grab;
-  touch-action: none;
+  cursor: default;
+  touch-action: auto;
   user-select: none;
   position: relative;
   will-change: transform;
@@ -361,16 +372,18 @@ button.panel-fold {
 
 .layer-item.is-dragging {
   z-index: 6;
-  cursor: grabbing;
   box-shadow: 0 12px 28px rgba(40, 32, 18, 0.18);
   border-color: #c4b79d;
   transition: none;
   opacity: 0.96;
 }
 
+.layer-item.is-dragging .layer-handle {
+  cursor: grabbing;
+}
+
 .layer-meta {
   min-width: 0;
-  pointer-events: none;
 }
 
 .layer-title {
@@ -386,6 +399,14 @@ button.panel-fold {
   color: var(--muted);
 }
 
+.layer-side-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  flex-shrink: 0;
+}
+
 .layer-controls {
   display: flex;
   flex-wrap: nowrap;
@@ -396,10 +417,129 @@ button.panel-fold {
   min-width: 0;
 }
 
-.layer-btn.is-danger {
-  color: var(--danger);
-  border-color: #e2b4b4;
-  background: #fff5f5;
+.layer-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.layer-handle:hover,
+.layer-handle:focus-visible {
+  background: #e2d9c6;
+  color: var(--ink);
+  outline: none;
+}
+
+.layer-handle-bars {
+  display: block;
+  width: 0.9rem;
+  height: 0.75rem;
+  background:
+    linear-gradient(currentColor, currentColor) 0 0 / 100% 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 50% / 100% 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 100% / 100% 2px no-repeat;
+}
+
+.layer-item.is-base {
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+}
+
+.layer-item.is-background {
+  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+}
+
+.layer-item.is-background .layer-meta {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.layer-item.is-background .layer-bg-controls {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.layer-swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(45deg, #ece7dc 25%, transparent 25%),
+    linear-gradient(-45deg, #ece7dc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ece7dc 75%),
+    linear-gradient(-45deg, transparent 75%, #ece7dc 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.layer-swatch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--swatch-color, #ffffff);
+  opacity: var(--swatch-opacity, 0);
+}
+
+.layer-bg-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  align-items: center;
+}
+
+.layer-bg-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.layer-bg-field input[type="color"] {
+  width: 2rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.layer-bg-opacity {
+  flex: 1;
+  min-width: 140px;
+}
+
+.layer-bg-opacity input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.layer-bg-opacity-value {
+  min-width: 2rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
 
 .empty,
@@ -415,6 +555,9 @@ button.panel-fold {
 
 .preview-block {
   margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
@@ -423,13 +566,20 @@ button.panel-fold {
   font-size: 1.05rem;
 }
 
+.preview-slot {
+  display: block;
+  line-height: 0;
+}
+
 .preview-frame {
-  display: inline-block;
+  display: block;
   padding: 0.75rem;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: var(--panel);
   box-shadow: var(--shadow);
+  box-sizing: border-box;
+  line-height: 0;
 }
 
 #preview {
@@ -444,6 +594,29 @@ button.panel-fold {
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0;
   border-radius: 8px;
+}
+
+.preview-frame.is-floating {
+  position: fixed;
+  z-index: 28;
+  margin: 0;
+  box-shadow: none;
+  transform-origin: top left;
+  will-change: transform, left, top;
+}
+
+.preview-frame.is-mini {
+  cursor: pointer;
+}
+
+.preview-frame.is-floating.is-home {
+  box-shadow: var(--shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-frame.is-floating {
+    will-change: auto;
+  }
 }
 
 .actions {
@@ -567,6 +740,17 @@ button.panel-fold {
   color: var(--ok);
   font-weight: 700;
   margin-right: 0.25rem;
+}
+
+.notes a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.notes a:hover {
+  filter: brightness(0.9);
 }
 
 .notes .ng {

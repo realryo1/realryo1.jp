@@ -32,10 +32,10 @@
         <p id="materials-status" class="status" hidden></p>
       </section>
 
-      <section class="panel" aria-labelledby="layers-heading">
+      <section class="panel panel-layers" aria-labelledby="layers-heading">
         <div class="panel-head">
           <h2 id="layers-heading">使用中</h2>
-          <p class="panel-hint">上ほど前面。ドラッグで入れ替え</p>
+          <p class="panel-hint">上ほど前面。右の持ち手で入れ替え</p>
         </div>
         <ul id="layers" class="layers"></ul>
         <p id="layers-empty" class="empty">まだ何もありません</p>
@@ -43,9 +43,10 @@
     </div>
 
     <section class="preview-block" aria-labelledby="preview-heading">
-      <h2 id="preview-heading">プレビュー</h2>
-      <div class="preview-frame">
-        <canvas id="preview" width="512" height="512" aria-label="アイコンプレビュー"></canvas>
+      <div class="preview-slot" id="preview-slot">
+        <div class="preview-frame" id="preview-frame">
+          <canvas id="preview" width="512" height="512" aria-label="アイコンプレビュー"></canvas>
+        </div>
       </div>
     </section>
 
@@ -64,7 +65,7 @@
       <p class="modal-save-hint">画像を長押し（または右クリック）して保存できます</p>
       <img id="result-image" class="result-image" alt="完成したアイコン">
       <ul class="notes">
-        <li><span class="ok">〇</span> @sigurin_now に感謝を伝える</li>
+        <li><span class="ok">〇</span> <a href="https://x.com/sigurin_now" target="_blank" rel="noopener noreferrer">@sigurin_now</a> に感謝を伝える</li>
         <li><span class="ok">〇</span> アイコンにする</li>
         <li><span class="ng">✖</span> R18</li>
         <li><span class="ng">✖</span> 権利元に迷惑をかける</li>
