@@ -86,6 +86,12 @@
   let dockNeedsTick = false;
   let naturalSize = { width: 0, height: 0 };
 
+  const WIDE_LAYOUT = "(min-width: 1100px)";
+
+  function isWideLayout() {
+    return window.matchMedia(WIDE_LAYOUT).matches;
+  }
+
   function prefersReducedMotion() {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
@@ -171,6 +177,11 @@
 
   function updatePreviewDock() {
     if (!previewFrame || !previewSlot) return;
+    if (isWideLayout()) {
+      settleHome();
+      dockProgress = 1;
+      return;
+    }
     if (!naturalSize.width) captureNaturalSize();
 
     const raw = visibilityProgress();
@@ -217,6 +228,10 @@
 
     window.addEventListener("scroll", requestDockTick, { passive: true });
     window.addEventListener("resize", () => {
+      captureNaturalSize();
+      requestDockTick();
+    });
+    window.matchMedia(WIDE_LAYOUT).addEventListener("change", () => {
       captureNaturalSize();
       requestDockTick();
     });
