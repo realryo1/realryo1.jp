@@ -103,7 +103,42 @@
     return el("img", { className, alt: "", src: assetUrl(file), ...extra });
   }
 
-  function makeMatRow({ className, label, ariaLabel, extraNodes = [], onClick, file }) {
+  function makeCompositeThumb(items) {
+    const thumb = makeThumb("mat-thumb", items[0]?.file, { loading: "lazy" });
+    const composite = document.createElement("canvas");
+    composite.width = SIZE;
+    composite.height = SIZE;
+    const compositeCtx = composite.getContext("2d");
+
+    Promise.all(
+      items.map(async (item) => {
+        const image = loadImage(item.file);
+        await image._ready;
+        return image;
+      })
+    )
+      .then((images) => {
+        for (let i = images.length - 1; i >= 0; i--) {
+          drawContain(images[i], compositeCtx, SIZE);
+        }
+        thumb.src = composite.toDataURL("image/png");
+      })
+      .catch(() => {
+        /* keep the first-part thumbnail when a group asset cannot load */
+      });
+
+    return thumb;
+  }
+
+  function makeMatRow({
+    className,
+    label,
+    ariaLabel,
+    extraNodes = [],
+    onClick,
+    file,
+    thumb,
+  }) {
     return el(
       "button",
       {
@@ -112,7 +147,7 @@
         "aria-label": ariaLabel,
         onclick: onClick,
       },
-      makeThumb("mat-thumb", file, { loading: "lazy" }),
+      thumb || makeThumb("mat-thumb", file, { loading: "lazy" }),
       el("span", { className: "mat-label", text: label }),
       ...extraNodes
     );
@@ -687,6 +722,7 @@
             label: groupName,
             ariaLabel: `${groupName}グループをすべて追加`,
             file: items[0].file,
+            thumb: makeCompositeThumb(items),
             extraNodes: [
               el("span", { className: "mat-meta", text: `${items.length}点` }),
             ],

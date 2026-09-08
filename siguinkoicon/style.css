@@ -404,6 +404,11 @@ button.panel-fold {
   font-size: 0.78rem;
 }
 
+.layer-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .layer-btn:hover,
 .modal-close:hover {
   background: #e2d9c6;
