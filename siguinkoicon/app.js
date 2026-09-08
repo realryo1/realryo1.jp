@@ -76,14 +76,62 @@
     return Math.max(0, layers.length - 2);
   }
 
+  function assetUrl(file) {
+    return IMG_DIR + encodeURIComponent(file).replace(/%2F/gi, "/");
+  }
+
+  function el(tag, props = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(props)) {
+      if (value == null) continue;
+      if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key === "dataset") Object.assign(node.dataset, value);
+      else if (key.startsWith("on") && typeof value === "function") {
+        node.addEventListener(key.slice(2).toLowerCase(), value);
+      } else if (key.includes("-")) node.setAttribute(key, value);
+      else node[key] = value;
+    }
+    for (const child of children.flat()) {
+      if (child) node.append(child);
+    }
+    return node;
+  }
+
+  function makeThumb(className, file, extra = {}) {
+    return el("img", { className, alt: "", src: assetUrl(file), ...extra });
+  }
+
+  function makeMatRow({ className, label, ariaLabel, extraNodes = [], onClick, file }) {
+    return el(
+      "button",
+      {
+        type: "button",
+        className,
+        "aria-label": ariaLabel,
+        onclick: onClick,
+      },
+      makeThumb("mat-thumb", file, { loading: "lazy" }),
+      el("span", { className: "mat-label", text: label }),
+      ...extraNodes
+    );
+  }
+
+  function makeLayerMeta(title, sub) {
+    return el(
+      "div",
+      { className: "layer-meta" },
+      el("div", { className: "layer-title", text: title }),
+      el("div", { className: "layer-sub", text: sub })
+    );
+  }
+
   const materialsEl = document.getElementById("materials");
   const materialsStatusEl = document.getElementById("materials-status");
   const materialsCountEl = document.getElementById("materials-count");
   const layersCountEl = document.getElementById("layers-count");
   const materialsToggle = document.getElementById("materials-toggle");
-  const materialsPanel =
-    document.getElementById("materials-panel") ||
-    materialsToggle?.closest(".panel");
+  const materialsPanel = document.getElementById("materials-panel");
   const layersEl = document.getElementById("layers");
   const layersEmptyEl = document.getElementById("layers-empty");
   const canvas = document.getElementById("preview");
@@ -97,7 +145,6 @@
 
   const MINI_VIEWPORT_RATIO = 1 / 3;
   let dockProgress = 1;
-  let dockRaf = 0;
   let dockNeedsTick = false;
   let naturalSize = { width: 0, height: 0 };
 
@@ -124,14 +171,21 @@
     return x * x * (3 - 2 * x);
   }
 
+  function bgAlpha(layer) {
+    const opacity = Number(layer.opacity);
+    if (!Number.isFinite(opacity)) return 1;
+    return clamp(opacity / 255, 0, 1);
+  }
+
+  function resetPreviewFrame() {
+    previewFrame.classList.remove("is-floating", "is-mini", "is-home");
+    previewFrame.style.cssText = "";
+    previewSlot.style.width = "";
+    previewSlot.style.height = "";
+  }
+
   function captureNaturalSize() {
-    const floating = previewFrame.classList.contains("is-floating");
-    if (floating) {
-      previewFrame.classList.remove("is-floating", "is-mini", "is-home");
-      previewFrame.style.cssText = "";
-      previewSlot.style.width = "";
-      previewSlot.style.height = "";
-    }
+    resetPreviewFrame();
     const r = previewFrame.getBoundingClientRect();
     naturalSize = { width: r.width, height: r.height };
     return naturalSize;
@@ -184,10 +238,7 @@
   }
 
   function settleHome() {
-    previewFrame.classList.remove("is-floating", "is-mini", "is-home");
-    previewFrame.style.cssText = "";
-    previewSlot.style.width = "";
-    previewSlot.style.height = "";
+    resetPreviewFrame();
   }
 
   function updatePreviewDock() {
@@ -230,7 +281,7 @@
   function requestDockTick() {
     if (dockNeedsTick) return;
     dockNeedsTick = true;
-    dockRaf = requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       dockNeedsTick = false;
       updatePreviewDock();
     });
@@ -254,7 +305,7 @@
     if (typeof ResizeObserver === "function") {
       const ro = new ResizeObserver(() => requestDockTick());
       ro.observe(document.documentElement);
-      if (materialsPanel) ro.observe(materialsPanel);
+      ro.observe(materialsPanel);
       ro.observe(previewSlot);
     }
 
@@ -266,6 +317,7 @@
       });
     });
   }
+
   function setMaterialsFolded(folded) {
     if (!materialsPanel || !materialsToggle) return;
     materialsToggle.setAttribute("aria-expanded", folded ? "false" : "true");
@@ -276,7 +328,7 @@
     });
   }
 
-  materialsToggle?.addEventListener("click", () => {
+  materialsToggle.addEventListener("click", () => {
     const open = materialsToggle.getAttribute("aria-expanded") !== "false";
     setMaterialsFolded(open);
   });
@@ -297,11 +349,8 @@
   }
 
   function groupAssets(list) {
-    /** @type {Map<string, ReturnType<typeof parseFileName>[]>} */
     const map = new Map();
-    for (const file of list) {
-      if (typeof file !== "string" || !/\.png$/i.test(file)) continue;
-      const item = parseFileName(file);
+    for (const item of list) {
       if (!map.has(item.group)) map.set(item.group, []);
       map.get(item.group).push(item);
     }
@@ -319,28 +368,23 @@
     materialsStatusEl.dataset.tone = tone || "";
   }
 
+  function whenImageReady(img, file) {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error(`failed: ${file}`));
+    });
+  }
+
   function loadImage(file) {
     if (imageCache.has(file)) return imageCache.get(file);
     const img = new Image();
     img.decoding = "async";
-    img.src = IMG_DIR + encodeURIComponent(file).replace(/%2F/gi, "/");
+    img.src = assetUrl(file);
     imageCache.set(file, img);
-    const ready = img.decode
-      ? img.decode().catch(() => {
-          if (img.complete && img.naturalWidth > 0) return;
-          return new Promise((resolve, reject) => {
-            img.onload = () => resolve();
-            img.onerror = () => reject(new Error(`failed: ${file}`));
-          });
-        })
-      : new Promise((resolve, reject) => {
-          if (img.complete && img.naturalWidth > 0) resolve();
-          else {
-            img.onload = () => resolve();
-            img.onerror = () => reject(new Error(`failed: ${file}`));
-          }
-        });
-    img._ready = ready;
+    img._ready = img.decode
+      ? img.decode().catch(() => whenImageReady(img, file))
+      : whenImageReady(img, file);
     return img;
   }
 
@@ -361,11 +405,10 @@
     for (let i = layers.length - 1; i >= 0; i--) {
       const layer = layers[i];
       if (isBackgroundLayer(layer)) {
-        const opacity = Number(layer.opacity);
-        const alpha = Number.isFinite(opacity) ? opacity / 255 : 1;
+        const alpha = bgAlpha(layer);
         if (alpha <= 0) continue;
         ctx.save();
-        ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
+        ctx.globalAlpha = alpha;
         ctx.fillStyle = layer.color || "#ffffff";
         ctx.fillRect(0, 0, SIZE, SIZE);
         ctx.restore();
@@ -398,7 +441,6 @@
       if (!ok) return;
     }
     layers.unshift(makeLayer(asset));
-    pinBackgroundBottom();
     loadImage(asset.file);
     renderLayers();
     renderPreview();
@@ -409,12 +451,8 @@
   }
 
   function updatePartCounts() {
-    if (materialsCountEl) {
-      materialsCountEl.textContent = `${assets.length}パーツ`;
-    }
-    if (layersCountEl) {
-      layersCountEl.textContent = `${countableLayerCount()}パーツ`;
-    }
+    materialsCountEl.textContent = `${assets.length}パーツ`;
+    layersCountEl.textContent = `${countableLayerCount()}パーツ`;
   }
 
   function addGroup(groupName) {
@@ -435,7 +473,6 @@
       return makeLayer(item);
     });
     layers = incoming.concat(layers);
-    pinBackgroundBottom();
     renderLayers();
     renderPreview();
   }
@@ -446,7 +483,6 @@
       return;
     }
     layers = layers.filter((l) => l.id !== id);
-    pinBackgroundBottom();
     renderLayers();
     renderPreview();
   }
@@ -461,7 +497,6 @@
     if (isBackgroundLayer(item)) return;
     next.splice(toIndex, 0, item);
     layers = next;
-    pinBackgroundBottom();
   }
 
   /** @type {null | {
@@ -478,16 +513,16 @@
   let dragState = null;
 
   function clearDragTransforms(items) {
-    for (const el of items) {
-      el.style.transform = "";
-      el.classList.remove("is-dragging", "is-shifting");
+    for (const node of items) {
+      node.style.transform = "";
+      node.classList.remove("is-dragging", "is-shifting");
     }
   }
 
   function applyDragShifts(state) {
-    const { fromIndex, toIndex, slot, items, el } = state;
+    const { fromIndex, toIndex, slot, items, el: dragging } = state;
     items.forEach((item, i) => {
-      if (item === el) return;
+      if (item === dragging) return;
       item.classList.add("is-shifting");
       let shift = 0;
       if (fromIndex < toIndex && i > fromIndex && i <= toIndex) {
@@ -536,7 +571,7 @@
 
   function onDragEnd(e) {
     if (!dragState || e.pointerId !== dragState.pointerId) return;
-    const { fromIndex, toIndex, items, el, pointerId } = dragState;
+    const { fromIndex, toIndex, items, pointerId } = dragState;
     const handle = e.currentTarget;
     try {
       handle.releasePointerCapture(pointerId);
@@ -555,8 +590,8 @@
     renderPreview();
   }
 
-  function readGapPx(el) {
-    const style = getComputedStyle(el);
+  function readGapPx(node) {
+    const style = getComputedStyle(node);
     const raw =
       style.rowGap && style.rowGap !== "normal"
         ? style.rowGap
@@ -617,91 +652,50 @@
 
   function renderMaterials() {
     materialsEl.replaceChildren();
-    const grouped = groupAssets(assets.map((a) => a.file));
-
-    for (const [groupName, items] of grouped) {
-      const groupLi = document.createElement("li");
-      groupLi.className = "mat-group";
-
+    for (const [groupName, items] of groupAssets(assets)) {
+      const groupLi = el("li", { className: "mat-group" });
       if (items.length === 1) {
         const item = items[0];
-        const row = document.createElement("button");
-        row.type = "button";
-        row.className = "mat-row mat-row-group";
-        row.setAttribute("aria-label", `${item.label}を追加`);
-
-        const thumb = document.createElement("img");
-        thumb.className = "mat-thumb";
-        thumb.alt = "";
-        thumb.loading = "lazy";
-        thumb.src =
-          IMG_DIR + encodeURIComponent(item.file).replace(/%2F/gi, "/");
-
-        const label = document.createElement("span");
-        label.className = "mat-label";
-        label.textContent = item.group;
-
-        row.append(thumb, label);
-        row.addEventListener("click", () => addAsset(item));
-        groupLi.append(row);
-        materialsEl.append(groupLi);
-        continue;
+        groupLi.append(
+          makeMatRow({
+            className: "mat-row mat-row-group",
+            label: item.group,
+            ariaLabel: `${item.label}を追加`,
+            file: item.file,
+            onClick: () => addAsset(item),
+          })
+        );
+      } else {
+        groupLi.append(
+          makeMatRow({
+            className: "mat-row mat-row-group",
+            label: groupName,
+            ariaLabel: `${groupName}グループをすべて追加`,
+            file: items[0].file,
+            extraNodes: [
+              el("span", { className: "mat-meta", text: `${items.length}点` }),
+            ],
+            onClick: () => addGroup(groupName),
+          }),
+          el(
+            "ul",
+            { className: "mat-parts" },
+            ...items.map((item) =>
+              el(
+                "li",
+                {},
+                makeMatRow({
+                  className: "mat-row mat-row-part",
+                  label: item.part ?? item.group,
+                  ariaLabel: `${item.label}を追加`,
+                  file: item.file,
+                  onClick: () => addAsset(item),
+                })
+              )
+            )
+          )
+        );
       }
-
-      const groupRow = document.createElement("button");
-      groupRow.type = "button";
-      groupRow.className = "mat-row mat-row-group";
-      groupRow.setAttribute(
-        "aria-label",
-        `${groupName}グループをすべて追加`
-      );
-
-      const groupThumb = document.createElement("img");
-      groupThumb.className = "mat-thumb";
-      groupThumb.alt = "";
-      groupThumb.loading = "lazy";
-      groupThumb.src =
-        IMG_DIR + encodeURIComponent(items[0].file).replace(/%2F/gi, "/");
-
-      const groupLabel = document.createElement("span");
-      groupLabel.className = "mat-label";
-      groupLabel.textContent = groupName;
-
-      const groupMeta = document.createElement("span");
-      groupMeta.className = "mat-meta";
-      groupMeta.textContent = `${items.length}点`;
-
-      groupRow.append(groupThumb, groupLabel, groupMeta);
-      groupRow.addEventListener("click", () => addGroup(groupName));
-
-      const partList = document.createElement("ul");
-      partList.className = "mat-parts";
-
-      for (const item of items) {
-        const partLi = document.createElement("li");
-        const partRow = document.createElement("button");
-        partRow.type = "button";
-        partRow.className = "mat-row mat-row-part";
-        partRow.setAttribute("aria-label", `${item.label}を追加`);
-
-        const thumb = document.createElement("img");
-        thumb.className = "mat-thumb";
-        thumb.alt = "";
-        thumb.loading = "lazy";
-        thumb.src =
-          IMG_DIR + encodeURIComponent(item.file).replace(/%2F/gi, "/");
-
-        const label = document.createElement("span");
-        label.className = "mat-label";
-        label.textContent = item.part ?? item.group;
-
-        partRow.append(thumb, label);
-        partRow.addEventListener("click", () => addAsset(item));
-        partLi.append(partRow);
-        partList.append(partLi);
-      }
-
-      groupLi.append(groupRow, partList);
       materialsEl.append(groupLi);
     }
     updatePartCounts();
@@ -714,128 +708,97 @@
     layersEmptyEl.hidden = layers.length > 0;
 
     layers.forEach((layer) => {
-      const li = document.createElement("li");
-      li.className = "layer-item";
-      li.dataset.id = layer.id;
+      const li = el("li", { className: "layer-item", dataset: { id: layer.id } });
 
       if (isBackgroundLayer(layer)) {
-        li.classList.add("is-locked", "is-background");
+        li.classList.add("is-background");
+        const color = layer.color || "#ffffff";
+        const swatch = el("div", { className: "layer-swatch" });
+        swatch.style.setProperty("--swatch-color", color);
+        swatch.style.setProperty("--swatch-opacity", String(bgAlpha(layer)));
 
-        const swatch = document.createElement("div");
-        swatch.className = "layer-swatch";
-        swatch.style.setProperty("--swatch-color", layer.color || "#ffffff");
-        swatch.style.setProperty(
-          "--swatch-opacity",
-          String(
-            Math.min(1, Math.max(0, (Number(layer.opacity) ?? 255) / 255))
-          )
-        );
-
-        const meta = document.createElement("div");
-        meta.className = "layer-meta";
-        const title = document.createElement("div");
-        title.className = "layer-title";
-        title.textContent = "背景色";
-        const sub = document.createElement("div");
-        sub.className = "layer-sub";
-        sub.textContent = "最背面・移動不可";
-        meta.append(title, sub);
-
-        const controls = document.createElement("div");
-        controls.className = "layer-controls layer-bg-controls";
-
-        const colorLabel = document.createElement("label");
-        colorLabel.className = "layer-bg-field";
-        colorLabel.title = "カラーパレット";
-        const colorText = document.createElement("span");
-        colorText.textContent = "カラーパレット";
-        const colorInput = document.createElement("input");
-        colorInput.type = "color";
-        colorInput.value = layer.color || "#ffffff";
-        colorInput.setAttribute("aria-label", "カラーパレット");
-        colorInput.addEventListener("pointerdown", (ev) => ev.stopPropagation());
-        colorInput.addEventListener("input", () => {
-          layer.color = colorInput.value;
-          swatch.style.setProperty("--swatch-color", layer.color);
-          renderPreview();
+        const colorInput = el("input", {
+          type: "color",
+          value: color,
+          "aria-label": "カラーパレット",
+          oninput: () => {
+            layer.color = colorInput.value;
+            swatch.style.setProperty("--swatch-color", layer.color);
+            renderPreview();
+          },
         });
-        colorLabel.append(colorText, colorInput);
-
-        const opacityLabel = document.createElement("label");
-        opacityLabel.className = "layer-bg-field layer-bg-opacity";
-        opacityLabel.title = "不透明度（0で透明・255で不透明）";
-        const opacityText = document.createElement("span");
-        opacityText.textContent = "不透明度";
-        const opacityInput = document.createElement("input");
-        opacityInput.type = "range";
-        opacityInput.min = "0";
-        opacityInput.max = "255";
-        opacityInput.step = "1";
-        opacityInput.value = String(
-          Math.round(Math.min(255, Math.max(0, Number(layer.opacity) ?? 255)))
-        );
-        opacityInput.setAttribute("aria-label", "不透明度");
-        const opacityValue = document.createElement("span");
-        opacityValue.className = "layer-bg-opacity-value";
-        opacityValue.textContent = opacityInput.value;
-        opacityInput.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+        const opacityInput = el("input", {
+          type: "range",
+          min: "0",
+          max: "255",
+          step: "1",
+          value: String(Math.round(clamp(Number(layer.opacity) ?? 255, 0, 255))),
+          "aria-label": "不透明度",
+        });
+        const opacityValue = el("span", {
+          className: "layer-bg-opacity-value",
+          text: opacityInput.value,
+        });
         opacityInput.addEventListener("input", () => {
           layer.opacity = Number(opacityInput.value);
           opacityValue.textContent = opacityInput.value;
-          swatch.style.setProperty(
-            "--swatch-opacity",
-            String(layer.opacity / 255)
-          );
+          swatch.style.setProperty("--swatch-opacity", String(layer.opacity / 255));
           renderPreview();
         });
-        opacityLabel.append(opacityText, opacityInput, opacityValue);
 
-        controls.append(colorLabel, opacityLabel);
-        li.append(swatch, meta, controls);
+        li.append(
+          swatch,
+          makeLayerMeta("背景色", "最背面・移動不可"),
+          el(
+            "div",
+            { className: "layer-controls layer-bg-controls" },
+            el(
+              "label",
+              { className: "layer-bg-field", title: "カラーパレット" },
+              el("span", { text: "カラーパレット" }),
+              colorInput
+            ),
+            el(
+              "label",
+              {
+                className: "layer-bg-field layer-bg-opacity",
+                title: "不透明度（0で透明・255で不透明）",
+              },
+              el("span", { text: "不透明度" }),
+              opacityInput,
+              opacityValue
+            )
+          )
+        );
         layersEl.append(li);
         return;
       }
 
-      const thumb = document.createElement("img");
-      thumb.className = "layer-thumb";
-      thumb.alt = "";
-      thumb.draggable = false;
-      thumb.src = IMG_DIR + encodeURIComponent(layer.file).replace(/%2F/gi, "/");
-
-      const meta = document.createElement("div");
-      meta.className = "layer-meta";
-      const title = document.createElement("div");
-      title.className = "layer-title";
-      title.textContent = layer.label;
-      const sub = document.createElement("div");
-      sub.className = "layer-sub";
-      sub.textContent = layer.part ? `${layer.group} / ${layer.part}` : layer.group;
-      meta.append(title, sub);
-
-      const handle = document.createElement("button");
-      handle.type = "button";
-      handle.className = "layer-handle";
-      handle.setAttribute("aria-label", "ドラッグして入れ替え");
-      handle.title = "ドラッグして入れ替え";
-      handle.innerHTML =
-        '<span aria-hidden="true" class="layer-handle-bars"></span>';
-      handle.addEventListener("pointerdown", (ev) =>
-        startLayerDrag(ev, layer.id, li)
+      const thumb = makeThumb("layer-thumb", layer.file, { draggable: false });
+      const handle = el("button", {
+        type: "button",
+        className: "layer-handle",
+        "aria-label": "ドラッグして入れ替え",
+        title: "ドラッグして入れ替え",
+        html: '<span aria-hidden="true" class="layer-handle-bars"></span>',
+        onpointerdown: (ev) => startLayerDrag(ev, layer.id, li),
+      });
+      const meta = makeLayerMeta(
+        layer.label,
+        layer.part ? `${layer.group} / ${layer.part}` : layer.group
       );
 
       if (!isFixedLayer(layer)) {
-        const sideLeft = document.createElement("div");
-        sideLeft.className = "layer-side-left";
-        const del = document.createElement("button");
-        del.type = "button";
-        del.className = "layer-btn is-danger";
-        del.textContent = "削除";
-        del.addEventListener("click", (ev) => {
-          ev.stopPropagation();
-          removeLayer(layer.id);
+        const del = el("button", {
+          type: "button",
+          className: "layer-btn is-danger",
+          text: "削除",
+          onclick: (ev) => {
+            ev.stopPropagation();
+            removeLayer(layer.id);
+          },
         });
-        sideLeft.append(del);
-        li.append(sideLeft, thumb, meta, handle);
+        li.append(el("div", { className: "layer-side-left" }, del), thumb, meta, handle);
       } else {
         li.classList.add("is-base");
         li.append(thumb, meta, handle);
@@ -891,13 +854,11 @@
       return;
     }
 
-    const pngFiles = raw.filter(
-      (f) => typeof f === "string" && /\.png$/i.test(f)
-    );
-
-    assets = pngFiles.filter((f) => !isFixedFile(f)).map(parseFileName);
-
-    const fixedAssets = pngFiles.filter(isFixedFile).map(parseFileName);
+    const parsed = raw
+      .filter((f) => typeof f === "string" && /\.png$/i.test(f))
+      .map(parseFileName);
+    assets = parsed.filter((a) => !a.locked);
+    const fixedAssets = parsed.filter((a) => a.locked);
     layers = fixedAssets.map(makeLayer).concat([makeBackgroundLayer()]);
     for (const asset of fixedAssets) {
       loadImage(asset.file);
