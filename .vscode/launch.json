@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "GitHub Actions: Deploy Pages",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "gh workflow run .github/workflows/deploy-pages.yml --repo realryo1/realryo1.jp",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
