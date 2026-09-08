@@ -51,4 +51,4 @@
 
 重複追加は confirm。グループ一括は未追加分だけ足す。全部済みなら confirm 後に全枚を再度足す。
 
-プレビュー / 完成は canvas に contain 描画。完成は `toDataURL("image/png")`。
+プレビュー / 完成は canvas に contain 描画。完成は `toDataURL("image/png")`。プレビューの更新完了時には、同じ canvas の内容でfaviconも動的に更新する。

@@ -24,6 +24,7 @@
   /** @type {Layer[]} */
   let layers = [];
   let idSeq = 0;
+  let renderVersion = 0;
 
   function makeLayer(asset) {
     return {
@@ -136,6 +137,7 @@
   const layersEmptyEl = document.getElementById("layers-empty");
   const canvas = document.getElementById("preview");
   const ctx = canvas.getContext("2d");
+  const faviconEl = document.getElementById("favicon");
   const previewSlot = document.getElementById("preview-slot");
   const previewFrame = document.getElementById("preview-frame");
   const previewBlock = document.querySelector(".preview-block");
@@ -400,7 +402,17 @@
     targetCtx.drawImage(image, x, y, w, h);
   }
 
+  function updateFavicon() {
+    if (!faviconEl) return;
+    try {
+      faviconEl.href = canvas.toDataURL("image/png");
+    } catch {
+      /* keep the fallback favicon when the canvas cannot be exported */
+    }
+  }
+
   async function renderPreview() {
+    const currentRenderVersion = ++renderVersion;
     ctx.clearRect(0, 0, SIZE, SIZE);
     for (let i = layers.length - 1; i >= 0; i--) {
       const layer = layers[i];
@@ -417,11 +429,14 @@
       const img = loadImage(layer.file);
       try {
         await img._ready;
+        if (currentRenderVersion !== renderVersion) return;
         drawContain(img, ctx, SIZE);
       } catch {
         /* skip broken asset */
       }
     }
+    if (currentRenderVersion !== renderVersion) return;
+    updateFavicon();
     btnFinish.disabled = layers.length === 0;
   }
 
