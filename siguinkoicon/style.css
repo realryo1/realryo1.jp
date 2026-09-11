@@ -288,12 +288,67 @@ button.panel-fold {
   border-top: 1px solid var(--line);
 }
 
+.mat-group-row {
+  display: grid;
+  grid-template-columns: 2.8rem minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.mat-group-row > .mat-row {
+  min-width: 0;
+}
+
+.mat-group-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--muted);
+  align-self: center;
+  justify-self: center;
+  margin: 0.3rem 0.2rem;
+  cursor: pointer;
+  touch-action: none;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mat-group-toggle:hover,
+.mat-group-toggle:focus-visible {
+  background: #e2d9c6;
+  color: var(--ink);
+  outline: none;
+}
+
+.mat-group-toggle-icon {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.mat-group-toggle[aria-expanded="true"] .mat-group-toggle-icon {
+  transform: rotate(90deg);
+}
+
 .mat-parts {
   margin: 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--line);
   background: #faf8f3;
+  height: auto;
+  overflow: hidden;
+  transition: height 0.24s ease;
+}
+
+.mat-parts.is-collapsed {
+  height: 0;
 }
 
 .mat-parts > li {

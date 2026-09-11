@@ -702,6 +702,7 @@
 
   function renderMaterials() {
     materialsEl.replaceChildren();
+    let groupIndex = 0;
     for (const [groupName, items] of groupAssets(assets)) {
       const groupLi = el("li", { className: "mat-group" });
       if (items.length === 1) {
@@ -716,35 +717,97 @@
           })
         );
       } else {
-        groupLi.append(
-          makeMatRow({
-            className: "mat-row mat-row-group",
-            label: groupName,
-            ariaLabel: `${groupName}グループをすべて追加`,
-            file: items[0].file,
-            thumb: makeCompositeThumb(items),
-            extraNodes: [
-              el("span", { className: "mat-meta", text: `${items.length}点` }),
-            ],
-            onClick: () => addGroup(groupName),
-          }),
-          el(
-            "ul",
-            { className: "mat-parts" },
-            ...items.map((item) =>
-              el(
-                "li",
-                {},
-                makeMatRow({
-                  className: "mat-row mat-row-part",
-                  label: item.part ?? item.group,
-                  ariaLabel: `${item.label}を追加`,
-                  file: item.file,
-                  onClick: () => addAsset(item),
-                })
-              )
+        const partsId = `mat-parts-${++groupIndex}`;
+        const parts = el(
+          "ul",
+          {
+            className: "mat-parts is-collapsed",
+            id: partsId,
+            "aria-hidden": "true",
+            inert: true,
+          },
+          ...items.map((item) =>
+            el(
+              "li",
+              {},
+              makeMatRow({
+                className: "mat-row mat-row-part",
+                label: item.part ?? item.group,
+                ariaLabel: `${item.label}を追加`,
+                file: item.file,
+                onClick: () => addAsset(item),
+              })
             )
           )
+        );
+        parts.style.height = "0px";
+        const toggleIcon = el("span", {
+          className: "mat-group-toggle-icon",
+          text: "▷",
+          "aria-hidden": "true",
+        });
+        const toggle = el(
+          "button",
+          {
+            type: "button",
+            className: "mat-group-toggle",
+            "aria-label": `${groupName}のパーツを開く`,
+            title: `${groupName}のパーツを開く`,
+            "aria-expanded": "false",
+            "aria-controls": partsId,
+            onclick: () => {
+              const collapsed = !parts.classList.contains("is-collapsed");
+              const currentHeight = parts.getBoundingClientRect().height;
+              parts.style.height = `${currentHeight}px`;
+              parts.classList.toggle("is-collapsed", collapsed);
+              parts.inert = collapsed;
+              parts.setAttribute("aria-hidden", String(collapsed));
+              requestAnimationFrame(() => {
+                parts.style.height = collapsed
+                  ? "0px"
+                  : `${parts.scrollHeight}px`;
+              });
+              if (!collapsed) {
+                parts.addEventListener(
+                  "transitionend",
+                  () => {
+                    if (!parts.classList.contains("is-collapsed")) {
+                      parts.style.height = "auto";
+                    }
+                  },
+                  { once: true }
+                );
+              }
+              toggle.setAttribute("aria-expanded", String(!collapsed));
+              toggle.setAttribute(
+                "aria-label",
+                `${groupName}のパーツを${collapsed ? "開く" : "閉じる"}`
+              );
+              toggle.title = `${groupName}のパーツを${
+                collapsed ? "開く" : "閉じる"
+              }`;
+            },
+          },
+          toggleIcon
+        );
+        groupLi.append(
+          el(
+            "div",
+            { className: "mat-group-row" },
+            toggle,
+            makeMatRow({
+              className: "mat-row mat-row-group",
+              label: groupName,
+              ariaLabel: `${groupName}グループをすべて追加`,
+              file: items[0].file,
+              thumb: makeCompositeThumb(items),
+              extraNodes: [
+                el("span", { className: "mat-meta", text: `${items.length}点` }),
+              ],
+              onClick: () => addGroup(groupName),
+            })
+          ),
+          parts
         );
       }
       materialsEl.append(groupLi);
