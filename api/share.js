@@ -21,7 +21,7 @@ export function GET(request) {
   <meta name="twitter:title" content="しぐいんこアイコン">
   <meta name="twitter:description" content="アイコンジェネレーターで作成">
   <meta name="twitter:image" content="${imageUrl}">
-  <meta http-equiv="refresh" content="0; url=${appUrl}">
+  <meta http-equiv="refresh" content="10; url=${appUrl}">
 </head>
 <body>
   <p>アイコンジェネレーターを開いています…</p>
