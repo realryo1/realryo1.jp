@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm install",
-  "outputDirectory": ".",
   "rewrites": [
     {
       "source": "/siguinkoicon/share",
@@ -10,13 +8,5 @@
       "source": "/siguinkoicon/api/og",
       "destination": "/api/og"
     }
-  ],
-  "functions": {
-    "api/*.tsx": {
-      "maxDuration": 30
-    },
-    "api/*.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
