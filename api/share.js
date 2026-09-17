@@ -1,5 +1,6 @@
 export default function handler(req) {
-  const requestUrl = new URL(req.url);
+  const urlStr = typeof req.url === "string" ? req.url : (req.headers ? req.headers.get("x-vercel-deployment-url") || "https://realryo1.jp/siguinkoicon/share") : "https://realryo1.jp/siguinkoicon/share";
+  const requestUrl = new URL(urlStr);
   const query = requestUrl.searchParams.toString();
 
   const appUrl = `https://realryo1.jp/siguinkoicon/?${query}`;
