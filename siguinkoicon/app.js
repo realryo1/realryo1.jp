@@ -950,8 +950,9 @@
       const hexStr = hex.padStart(6, "0") + String(opacity).padStart(2, "0");
       params.set("hex", hexStr);
     }
-    const imageLayers = layers.filter(l => !isBackgroundLayer(l) && !isFixedLayer(l));
-    for (let i = 0; i < imageLayers.length; i++) {
+    const imageLayers = layers.filter((l) => !isBackgroundLayer(l) && !isFixedLayer(l));
+    // 先頭ほど前面なので、下層→上層になるよう末尾から i を出す
+    for (let i = imageLayers.length - 1; i >= 0; i--) {
       const layer = imageLayers[i];
       if (layer.file && manifest[layer.file] !== undefined) {
         params.append("i", String(manifest[layer.file]));
@@ -1021,18 +1022,20 @@
     }
     const idStrs = params.getAll("i");
     if (idStrs.length > 0) {
-      const validIds = idStrs.filter(id => /^\d{1,6}$/.test(id)).slice(0, 12);
+      const validIds = idStrs.filter((id) => /^\d{1,6}$/.test(id)).slice(0, 12);
+      const restored = [];
       for (const idStr of validIds) {
         const id = Number(idStr);
-        const file = Object.keys(manifest).find(f => manifest[f] === id);
-        if (!file) continue;
+        const file = Object.keys(manifest).find((f) => manifest[f] === id);
+        if (!file || isFixedFile(file)) continue;
         const parsed = parseFileName(file);
         parsed.id = id;
-        if (!layers.some(l => l.file === file)) {
-          layers.unshift(makeLayer(parsed));
-          loadImage(file);
-        }
+        restored.push(makeLayer(parsed));
+        loadImage(file);
       }
+      // i は下層→上層。リストは先頭が前面なので逆順で載せる
+      const keep = layers.filter((l) => isBackgroundLayer(l) || isFixedLayer(l));
+      layers = restored.slice().reverse().concat(keep);
     }
     enforceFixedLayer();
     renderLayers();
