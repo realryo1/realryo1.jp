@@ -1,4 +1,4 @@
-export default function handler(req: Request) {
+export default function handler(req) {
   const requestUrl = new URL(req.url);
   const query = requestUrl.searchParams.toString();
 
