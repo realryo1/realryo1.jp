@@ -11,23 +11,23 @@ export function GET(request) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>しぐいんこアイコンジェネレーター</title>
+  <title>シグリンコ アイコンジェネレータ</title>
   <meta name="description" content="作成されたアイコンを編集画面で開きます。">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="しぐいんこアイコン">
-  <meta property="og:description" content="アイコンジェネレーターで作成">
+  <meta property="og:title" content="シグリンコ アイコンジェネレータ">
+  <meta property="og:description" content="モグラではなくインコ">
   <meta property="og:image" content="${imageUrl}">
   <meta property="og:image:width" content="630">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="しぐいんこアイコン">
-  <meta name="twitter:description" content="アイコンジェネレーターで作成">
+  <meta name="twitter:title" content="シグリンコ アイコンジェネレータ">
+  <meta name="twitter:description" content="モグラではなくインコ">
   <meta name="twitter:image" content="${imageUrl}">
   <meta http-equiv="refresh" content="10; url=${appUrl}">
 </head>
 <body>
-  <p>アイコンジェネレーターを開いています…</p>
-  <p><a href="${appUrl}">自動で移動しない場合はこちら</a></p>
+  <p>シグリンコ アイコンジェネレータへ飛んでいます……</p>
+  <p><a href="${appUrl}">飛び立たない場合はこちらをクリック</a></p>
   <script>location.replace("${appUrl}");</script>
 </body>
 </html>`;
