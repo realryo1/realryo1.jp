@@ -1,3 +1,5 @@
+import { ImageResponse } from "@vercel/og";
+
 export const config = { runtime: "edge" };
 
 const ASSET_ORIGIN = "https://realryo1.jp/siguinkoicon/img";
@@ -20,18 +22,16 @@ export async function GET(request) {
     return new Response("Invalid layer count", { status: 400 });
   }
 
-  // マニフェストを公開URLから取得（直書きを避ける）
   let manifest = {};
   try {
     const res = await fetch(MANIFEST_URL, { cache: "no-cache" });
     if (res.ok) manifest = await res.json();
   } catch {
-    // 取得失敗時は空のまま進め、下で検証して400を返す
+    // 失敗時は空
   }
 
-  // 固定素材を必ず最下層（最初に描画＝下層）に追加
-  const fixedFiles = Object.keys(manifest || {}).filter(f => f.startsWith("固定"));
-  const fixedLayers = fixedFiles.map(file => `${ASSET_ORIGIN}/${file}`);
+  const fixedFiles = Object.keys(manifest || {}).filter((f) => f.startsWith("固定"));
+  const fixedLayers = fixedFiles.map((file) => `${ASSET_ORIGIN}/${file}`);
 
   const userLayers = [];
   for (const idStr of ids) {
@@ -48,22 +48,38 @@ export async function GET(request) {
 
   const layers = fixedLayers.concat(userLayers);
 
-  const layerTags = layers.map((src) => `<img src="${src}" width="630" height="630" style="position:absolute;left:0;top:0;"/>`).join("");
-
-  const html = `<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>OG</title></head>
-<body style="margin:0;background:#ffffff;">
-<div style="width:1200px;height:630px;position:relative;background:#ffffff;display:flex;align-items:center;justify-content:center;">
-  <div style="width:630px;height:630px;position:relative;">${layerTags}</div>
-</div>
-</body>
-</html>`;
-
-  return new Response(html, {
-    headers: {
-      "content-type": "image/png",
-      "cache-control": "public, max-age=0, s-maxage=31536000, immutable",
-    },
-  });
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "1200px",
+          height: "630px",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#ffffff",
+        }}
+      >
+        <div style={{ width: "630px", height: "630px", position: "relative" }}>
+          {layers.map((src, index) => (
+            <img
+              key={`${index}:${src}`}
+              src={src}
+              width="630"
+              height="630"
+              style={{ position: "absolute", left: "0", top: "0" }}
+            />
+          ))}
+        </div>
+      </div>
+    ),
+    {
+      width: 1200,
+      height: 630,
+      headers: {
+        "Cache-Control": "public, max-age=0, s-maxage=31536000, immutable",
+      },
+    }
+  );
 }
