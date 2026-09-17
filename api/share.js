@@ -1,6 +1,5 @@
-export default function handler(req) {
-  const rawUrl = (req.url && typeof req.url === "string") ? req.url : "/";
-  const urlStr = rawUrl.startsWith("http") ? rawUrl : `https://realryo1.jp${rawUrl}`;
+export function GET(request) {
+  const urlStr = (request.url && typeof request.url === "string") ? request.url : `https://realryo1.jp/siguinkoicon/share`;
   const requestUrl = new URL(urlStr);
   const query = requestUrl.searchParams.toString();
 
@@ -14,17 +13,14 @@ export default function handler(req) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>しぐいんこアイコンジェネレーター</title>
   <meta name="description" content="作成されたアイコンを編集画面で開きます。">
-
   <meta property="og:type" content="website">
   <meta property="og:title" content="しぐいんこアイコン">
   <meta property="og:description" content="アイコンジェネレーターで作成">
   <meta property="og:image" content="${imageUrl}">
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="しぐいんこアイコン">
   <meta name="twitter:description" content="アイコンジェネレーターで作成">
   <meta name="twitter:image" content="${imageUrl}">
-
   <meta http-equiv="refresh" content="0; url=${appUrl}">
 </head>
 <body>

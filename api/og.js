@@ -5,8 +5,8 @@ const MANIFEST_URL = "https://realryo1.jp/siguinkoicon/img/imagelist.json";
 const MAX_LAYERS = 12;
 const MAX_QUERY_LENGTH = 512;
 
-export default async function handler(req) {
-  const url = new URL(req.url);
+export function GET(request) {
+  const url = new URL(request.url);
 
   if (url.search.length > MAX_QUERY_LENGTH) {
     return new Response("Query too long", { status: 400 });
