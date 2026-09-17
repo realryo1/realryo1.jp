@@ -1,5 +1,6 @@
 export default function handler(req) {
-  const urlStr = typeof req.url === "string" ? req.url : (req.headers ? req.headers.get("x-vercel-deployment-url") || "https://realryo1.jp/siguinkoicon/share") : "https://realryo1.jp/siguinkoicon/share";
+  const rawUrl = (req.url && typeof req.url === "string") ? req.url : "/";
+  const urlStr = rawUrl.startsWith("http") ? rawUrl : `https://realryo1.jp${rawUrl}`;
   const requestUrl = new URL(urlStr);
   const query = requestUrl.searchParams.toString();
 
