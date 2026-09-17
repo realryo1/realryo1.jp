@@ -991,6 +991,22 @@
 
   let manifest = {};
 
+  function enforceFixedLayer() {
+    const fixedFiles = Object.keys(manifest).filter(f => f.startsWith("固定"));
+    for (const file of fixedFiles) {
+      const parsed = parseFileName(file);
+      parsed.id = manifest[file];
+      if (!layers.some(l => l.file === file)) {
+        layers.unshift(makeLayer(parsed));
+        loadImage(file);
+      }
+    }
+    const fixedIds = fixedFiles.map(f => manifest[f]);
+    const nonFixed = layers.filter(l => !(l.file && fixedFiles.includes(l.file)));
+    const fixedLayers = layers.filter(l => (l.file && fixedFiles.includes(l.file)));
+    layers = fixedLayers.concat(nonFixed);
+  }
+
   function restoreFromQuery(params) {
     const bgLayer = layers.find(isBackgroundLayer);
     if (bgLayer && params.get("hex")) {
@@ -1014,6 +1030,7 @@
       }
     }
     pinBackgroundBottom();
+    enforceFixedLayer();
     renderLayers();
     renderPreview();
   }

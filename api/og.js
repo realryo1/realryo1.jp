@@ -47,10 +47,9 @@ export async function GET(request) {
   const html = `<!doctype html>
 <html>
 <head><meta charset="utf-8"><title>OG</title></head>
-<body style="margin:0;background:#17171f;">
-<div style="width:1200px;height:630px;position:relative;background:#17171f;">
-  <div style="width:630px;height:630px;position:absolute;right:0;top:0;">${layerTags}</div>
-  <div style="position:absolute;left:56px;bottom:65px;color:white;font-size:44px;font-weight:bold;">しぐいんこアイコン</div>
+<body style="margin:0;background:#ffffff;">
+<div style="width:1200px;height:630px;position:relative;background:#ffffff;display:flex;align-items:center;justify-content:center;">
+  <div style="width:630px;height:630px;position:relative;">${layerTags}</div>
 </div>
 </body>
 </html>`;
