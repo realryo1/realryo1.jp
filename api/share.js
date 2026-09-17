@@ -17,7 +17,9 @@ export function GET(request) {
   <meta property="og:title" content="しぐいんこアイコン">
   <meta property="og:description" content="アイコンジェネレーターで作成">
   <meta property="og:image" content="${imageUrl}">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:image:width" content="630">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="しぐいんこアイコン">
   <meta name="twitter:description" content="アイコンジェネレーターで作成">
   <meta name="twitter:image" content="${imageUrl}">

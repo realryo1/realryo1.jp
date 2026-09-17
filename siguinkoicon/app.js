@@ -818,7 +818,7 @@
   function renderLayers() {
     layersEl.replaceChildren();
     updatePartCounts();
-    pinBackgroundBottom();
+    enforceFixedLayer();
     layersEmptyEl.hidden = layers.length > 0;
 
     layers.forEach((layer) => {
@@ -992,19 +992,24 @@
   let manifest = {};
 
   function enforceFixedLayer() {
-    const fixedFiles = Object.keys(manifest).filter(f => f.startsWith("固定"));
+    const fixedFiles = Object.keys(manifest).filter((f) => f.startsWith("固定"));
     for (const file of fixedFiles) {
       const parsed = parseFileName(file);
       parsed.id = manifest[file];
-      if (!layers.some(l => l.file === file)) {
-        layers.unshift(makeLayer(parsed));
+      if (!layers.some((l) => l.file === file)) {
+        layers.push(makeLayer(parsed));
         loadImage(file);
       }
     }
-    const fixedIds = fixedFiles.map(f => manifest[f]);
-    const nonFixed = layers.filter(l => !(l.file && fixedFiles.includes(l.file)));
-    const fixedLayers = layers.filter(l => (l.file && fixedFiles.includes(l.file)));
-    layers = fixedLayers.concat(nonFixed);
+    const bg = layers.find(isBackgroundLayer) || makeBackgroundLayer();
+    const rest = layers.filter(
+      (l) => !isBackgroundLayer(l) && !(l.file && fixedFiles.includes(l.file))
+    );
+    const fixedLayers = layers.filter(
+      (l) => l.file && fixedFiles.includes(l.file)
+    );
+    // 先頭ほど前面。固定は背景の直前（リストでは背景の直上＝最背面の画像）
+    layers = rest.concat(fixedLayers).concat([bg]);
   }
 
   function restoreFromQuery(params) {
@@ -1029,7 +1034,6 @@
         }
       }
     }
-    pinBackgroundBottom();
     enforceFixedLayer();
     renderLayers();
     renderPreview();
