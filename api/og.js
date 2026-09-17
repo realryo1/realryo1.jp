@@ -5,7 +5,7 @@ const MANIFEST_URL = "https://realryo1.jp/siguinkoicon/img/imagelist.json";
 const MAX_LAYERS = 12;
 const MAX_QUERY_LENGTH = 512;
 
-export function GET(request) {
+export async function GET(request) {
   const url = new URL(request.url);
 
   if (url.search.length > MAX_QUERY_LENGTH) {
