@@ -925,6 +925,7 @@
     resultImage.src = canvas.toDataURL("image/png");
     modal.hidden = false;
     document.body.classList.add("modal-open");
+    addShareButtonToModal();
   }
 
   function closeModal() {
@@ -938,6 +939,48 @@
     openModal();
   });
 
+  function buildShareUrl() {
+    const params = new URLSearchParams();
+    params.set("v", "1");
+    params.set("hex", "FFFFFFFF");
+    const bgLayer = layers.find(isBackgroundLayer);
+    if (bgLayer) {
+      const hex = bgLayer.color ? bgLayer.color.replace("#", "") : "ffffff";
+      const opacity = Math.round((bgLayer.opacity ?? 255) / 255 * 255);
+      const hexStr = hex.padStart(6, "0") + String(opacity).padStart(2, "0");
+      params.set("hex", hexStr);
+    }
+    const imageLayers = layers.filter(l => !isBackgroundLayer(l) && !isFixedLayer(l));
+    for (let i = 0; i < imageLayers.length; i++) {
+      const layer = imageLayers[i];
+      if (layer.file && manifest[layer.file] !== undefined) {
+        params.append("i", String(manifest[layer.file]));
+      }
+    }
+    return `https://realryo1.jp/siguinkoicon/share?${params.toString()}`;
+  }
+
+  function copyShareUrl() {
+    const url = buildShareUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => alert("共有URLをコピーしました！"));
+    } else {
+      prompt("共有URLをコピーしてください:", url);
+    }
+  }
+
+  function addShareButtonToModal() {
+    const modalTop = document.querySelector(".modal-top");
+    if (!modalTop || modalTop.querySelector(".btn-share")) return;
+    const shareBtn = el("button", {
+      type: "button",
+      className: "btn-finish btn-share",
+      text: "共有URLをコピー",
+      onclick: copyShareUrl,
+    });
+    modalTop.append(shareBtn);
+  }
+
   modal.addEventListener("click", (e) => {
     if (e.target.closest("[data-close]")) closeModal();
   });
@@ -945,6 +988,43 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !modal.hidden) closeModal();
   });
+
+  let manifest = {};
+
+  function restoreFromQuery(params) {
+    const bgLayer = layers.find(isBackgroundLayer);
+    if (bgLayer && params.get("hex")) {
+      bgLayer.color = "#" + params.get("hex").slice(0, 6);
+      const opacityHex = params.get("hex").slice(6, 8);
+      if (opacityHex) bgLayer.opacity = parseInt(opacityHex, 16);
+    }
+    const idStrs = params.getAll("i");
+    if (idStrs.length > 0) {
+      const validIds = idStrs.filter(id => /^\d{1,6}$/.test(id)).slice(0, 12);
+      for (const idStr of validIds) {
+        const id = Number(idStr);
+        const file = Object.keys(manifest).find(f => manifest[f] === id);
+        if (!file) continue;
+        const parsed = parseFileName(file);
+        parsed.id = id;
+        if (!layers.some(l => l.file === file)) {
+          layers.unshift(makeLayer(parsed));
+          loadImage(file);
+        }
+      }
+    }
+    pinBackgroundBottom();
+    renderLayers();
+    renderPreview();
+  }
+
+  async function restoreSharedState(params) {
+    if (!params) params = new URLSearchParams(window.location.search);
+    if (params.get("v") === null && params.get("i") === null && params.get("hex") === null) return false;
+    if (params.get("v") !== null && params.get("v") !== "1") return false;
+    restoreFromQuery(params);
+    return true;
+  }
 
   async function init() {
     btnFinish.disabled = true;
@@ -963,16 +1043,20 @@
       return;
     }
 
-    if (!Array.isArray(raw)) {
-      setStatus("imagelist.json の形式が不正です（配列である必要があります）。", "error");
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+      setStatus("imagelist.json の形式が不正です（オブジェクトである必要があります）。", "error");
       return;
     }
+    manifest = raw;
 
-    const parsed = raw
-      .filter((f) => typeof f === "string" && /\.png$/i.test(f))
-      .map(parseFileName);
-    assets = parsed.filter((a) => !a.locked);
-    const fixedAssets = parsed.filter((a) => a.locked);
+    const allFiles = Object.keys(manifest);
+    const parsedFiles = allFiles.map(file => {
+      const parsed = parseFileName(file);
+      parsed.id = manifest[file];
+      return parsed;
+    });
+    assets = parsedFiles.filter((a) => !a.locked);
+    const fixedAssets = parsedFiles.filter((a) => a.locked);
     layers = fixedAssets.map(makeLayer).concat([makeBackgroundLayer()]);
     for (const asset of fixedAssets) {
       loadImage(asset.file);
@@ -983,6 +1067,10 @@
     renderLayers();
     renderPreview();
     setupPreviewDock();
+
+    // 共有URL復元
+    const params = new URLSearchParams(window.location.search);
+    await restoreSharedState(params);
   }
 
   init();

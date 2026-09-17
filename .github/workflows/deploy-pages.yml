@@ -38,7 +38,12 @@ jobs:
           )
           out = img_dir / "imagelist.json"
           out.write_text(
-              json.dumps(files, ensure_ascii=False, indent=2) + "\n",
+              json.dumps(
+                  {name: idx for idx, name in enumerate(files, 1)},
+                  ensure_ascii=False,
+                  indent=2,
+              )
+              + "\n",
               encoding="utf-8",
           )
           print(f"wrote {out} ({len(files)} files)")

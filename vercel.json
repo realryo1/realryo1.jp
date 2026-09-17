@@ -1,17 +1,12 @@
 {
-    "trailingSlash": true,
-    "redirects": [
-      {
-        "source": "/index.html",
-        "destination": "/"
-      },
-      {
-        "source": "/mikuzi/index.html",
-        "destination": "/mikuzi/"
-      },
-      {
-        "source": "/download.html",
-        "destination": "/Download.html"
-      }
-    ]
-  }
+  "rewrites": [
+    {
+      "source": "/siguinkoicon/share",
+      "destination": "/api/share"
+    },
+    {
+      "source": "/siguinkoicon/api/og",
+      "destination": "/api/og"
+    }
+  ]
+}
