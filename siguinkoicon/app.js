@@ -1002,15 +1002,8 @@
         loadImage(file);
       }
     }
-    const bg = layers.find(isBackgroundLayer) || makeBackgroundLayer();
-    const rest = layers.filter(
-      (l) => !isBackgroundLayer(l) && !(l.file && fixedFiles.includes(l.file))
-    );
-    const fixedLayers = layers.filter(
-      (l) => l.file && fixedFiles.includes(l.file)
-    );
-    // 先頭ほど前面。固定は背景の直前（リストでは背景の直上＝最背面の画像）
-    layers = rest.concat(fixedLayers).concat([bg]);
+    // 固定レイヤーの位置はユーザーの並べ替えを尊重する。背景だけ常に最背面
+    pinBackgroundBottom();
   }
 
   function restoreFromQuery(params) {
